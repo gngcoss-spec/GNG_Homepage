@@ -182,33 +182,33 @@ const Platforms: React.FC = () => {
     {
       id: 'Smart FM',
       title: 'Smart FM',
-      subtitle: 'Smart FM Management System',
-      description: '공간별 업무·인력·점검·VOC를 연결하는 스마트 시설관리 플랫폼. 공간을 클릭하면 현장의 운영 이력이 보입니다.',
-      tags: ['Facility Mgmt', 'Inspection', 'VOC'],
+      subtitle: 'QR 기반 AI 시설관리(FMS) 서비스',
+      description: 'QR 코드로 공간·설비의 업무·인력·점검·VOC를 연결하는 AI 기반 FMS 서비스. 현장에서 QR을 스캔하면 운영 이력이 열리고, 축적된 데이터를 AI가 분석합니다.',
+      tags: ['QR 기반 FMS', 'AI 분석', 'VOC'],
       detail: {
         title: 'Smart FM',
-        description: '"공간을 클릭하면 현장의 운영 이력이 보인다."',
+        description: '"QR을 스캔하면 현장의 운영 이력이 열린다."',
         features: [
           {
-            title: '미화 관리',
-            items: ['청소 상태·스케줄 관리', '공간별 미화 이력 조회']
+            title: 'QR 현장 업무 · 미화 관리',
+            items: ['공간·설비 QR 스캔으로 현장 업무 시작', '청소 상태·스케줄·공간별 미화 이력 관리']
           },
           {
             title: '점검 관리',
-            items: ['일상·정기 점검 자동 스케줄링', '측정값 기록·이력 관리']
+            items: ['QR 기반 일상·정기 점검 자동 스케줄링', '측정값 기록·이력 관리']
           },
           {
             title: 'VOC 관리',
             items: ['민원 접수부터 처리까지 이력 관리', '공간 기반 VOC 현황 파악']
           },
           {
-            title: '인력 · 장비 관리',
-            items: ['공간별 인력 배치·매핑', '장비 현황·품질 리포트']
+            title: 'AI 분석 · 리포트',
+            items: ['점검·VOC 등 축적 데이터 AI 분석', '공간별 인력 배치·장비 현황·품질 리포트']
           }
         ],
         valueProp: {
-          title: '공간별 업무·인력·점검·VOC를 하나로 연결한다.',
-          description: '분산되어 있던 시설관리 업무를 공간 중심으로 통합해, 운영 현황과 이력을 즉시 확인하고 데이터로 관리합니다.'
+          title: 'QR 하나로 현장 업무를 연결하고, AI로 관리한다.',
+          description: '공간·설비에 부착된 QR로 분산되어 있던 시설관리 업무를 통합하고, 축적된 운영 데이터를 AI가 분석해 관리 효율을 높입니다.'
         }
       }
     },
@@ -248,24 +248,24 @@ const Platforms: React.FC = () => {
     {
       id: 'Logistics DX',
       title: 'Logistics DX',
-      subtitle: 'Logistics Automation DX',
-      description: '물류 프로세스·보관량·처리량·공간 조건을 분석하여 최적의 자동화 설비와 운영 구조를 설계·구축하는 물류 자동화 DX 솔루션입니다.',
-      tags: ['AGV · ACR · AS/RS', 'WMS 연계', 'Automation'],
+      subtitle: 'Logistics Automation DX · SIDONN 한국 총판',
+      description: '중국 물류자동화 전문 기업 SIDONN의 한국 총판으로서, 물류·창고 자동화 제품을 설계·소싱하고 프로세스·물동량 분석 기반으로 최적의 자동화 운영 구조를 구축하는 물류 DX 솔루션입니다.',
+      tags: ['SIDONN 총판', 'AGV · ACR · AS/RS', 'WMS 연계'],
       detail: {
         title: 'Logistics DX',
         description: '"물류의 흐름을 데이터로 설계하고, 자동화 설비로 실행한다."',
         features: [
           {
-            title: '분석',
-            items: ['물류 프로세스·보관량·처리량 분석', '공간 조건 기반 요구사항 도출']
+            title: 'SIDONN 총판 · 소싱',
+            items: ['중국 물류자동화 전문 기업 SIDONN 한국 총판', '글로벌 현장에서 검증된 물류·창고 자동화 설비 직접 소싱']
           },
           {
-            title: '설계',
-            items: ['Layout 최적화 설계', '자동화 설비 구성 설계']
+            title: '분석 · 설계',
+            items: ['물류 프로세스·보관량·처리량 분석', 'Layout 최적화·자동화 설비 구성 설계']
           },
           {
             title: '설비 구축',
-            items: ['AGV · ACR · CTU · 4Way Shuttle · AS/RS', '현장 맞춤 자동화 설비 구축']
+            items: ['AGV · ACR · CTU · 4Way Shuttle · AS/RS(스태커 크레인)', '현장 맞춤 자동화 설비 구축']
           },
           {
             title: '연계 · 실행',
@@ -274,7 +274,7 @@ const Platforms: React.FC = () => {
         ],
         valueProp: {
           title: '설비 도입이 아니라, 데이터 분석에서 출발한다.',
-          description: '프로세스·물동량·공간을 분석해 최적의 자동화 구조를 설계하고, 설비 구축과 WMS 연계, 운영까지 이어지는 End-to-End 물류 DX를 제공합니다.'
+          description: '프로세스·물동량·공간을 분석해 최적의 자동화 구조를 설계하고, SIDONN 총판으로서 검증된 설비를 직접 소싱해 구축·WMS 연계·운영까지 이어지는 End-to-End 물류 DX를 제공합니다.'
         }
       }
     }

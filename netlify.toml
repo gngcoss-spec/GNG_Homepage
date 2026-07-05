@@ -1,0 +1,4 @@
+# Netlify build settings — gngss.co.kr
+[build]
+  command = "npm run build"
+  publish = "build"
