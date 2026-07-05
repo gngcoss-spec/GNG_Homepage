@@ -1,0 +1,8 @@
+/* GNG Homepage Redesign — extra global CSS hooks */
+/* (대부분의 스타일은 index.html 인라인 + Tailwind에서 처리됨) */
+
+html { scroll-behavior: smooth; }
+body { margin: 0; }
+
+/* Smooth scroll target offset (fixed navbar 보정) */
+:target { scroll-margin-top: 90px; }

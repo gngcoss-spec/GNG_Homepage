@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>가능가 | GNG Co., Ltd.</title>
+    <meta name="description" content="가능가(GNG)는 공간의 모든 데이터를 연결하고 AI로 운영을 전환하는 공간 운영 AX 전환 전문 기업입니다. SSiN·SSoN·SSAx 플랫폼으로 DT→DX→AI→AX 전환을 지원합니다." />
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="가능가 | GNG Co., Ltd." />
+    <meta property="og:description" content="공간의 모든 데이터를 연결하고, AI로 운영을 전환합니다. 공간 운영 AX 전환 전문 기업 가능가(GNG)." />
+    <meta property="og:url" content="https://gngss.co.kr" />
+    <meta property="og:image" content="https://gngss.co.kr/logo.png" />
+    <meta name="twitter:card" content="summary" />
+    <script>
+      // 새로고침/재방문 시 항상 최상단(Hero)에서 시작
+      // ① 브라우저의 이전 스크롤 위치 복원 차단
+      if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+      // ② 앵커 클릭으로 남은 해시(#contact 등) 제거 → 로드 후 앵커 점프 방지
+      if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+      window.scrollTo(0, 0);
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      // ============================================================
+      // GNG Tailwind Config — Redesign v2 (interactive layer added)
+      // 기존 컬러 팔레트는 그대로 유지하고 신규 인터랙션 토큰만 추가
+      // ============================================================
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Pretendard Variable', 'Pretendard', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
+            colors: {
+              background: '#FAF9F7',
+              surface: '#FFFFFF',
+              ink: '#17151F',
+              muted: '#5B5766',
+              line: '#E7E4DD',
+              primary: {
+                DEFAULT: '#5B21B6',
+                glow: '#7C3AED',
+                dark: '#4C1D95'
+              },
+              secondary: {
+                DEFAULT: '#7C3AED',
+                glow: '#8B5CF6',
+              },
+              accent: '#5B21B6',
+              // 신규: 관제 시그널 컬러
+              signal: {
+                green: '#22C55E',
+                amber: '#F59E0B',
+                red:   '#EF4444',
+              }
+            },
+            backgroundImage: {
+              'hero-glow': 'none',
+              'card-gradient': 'none',
+              'grid-pattern': 'none',
+              'tech-grid': 'none',
+              'scan-line': 'none',
+            },
+            animation: {
+              'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              'float': 'float 6s ease-in-out infinite',
+              // 신규
+              'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'reveal-word': 'revealWord 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+              'scan-vertical': 'scanVertical 4s linear infinite',
+              'gradient-shift': 'gradientShift 8s ease infinite',
+              'shimmer': 'shimmer 2.5s linear infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-20px)' },
+              },
+              fadeInUp: {
+                '0%': { opacity: '0', transform: 'translateY(24px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              revealWord: {
+                '0%': { opacity: '0', transform: 'translateY(40px)' },
+                '100%': { opacity: '1', transform: 'translateY(0)' },
+              },
+              scanVertical: {
+                '0%':   { transform: 'translateY(-100%)' },
+                '100%': { transform: 'translateY(100%)'  },
+              },
+              gradientShift: {
+                '0%, 100%': { backgroundPosition: '0% 50%' },
+                '50%':      { backgroundPosition: '100% 50%' },
+              },
+              shimmer: {
+                '0%':   { backgroundPosition: '-200% 0' },
+                '100%': { backgroundPosition: '200% 0'  },
+              }
+            }
+          },
+        },
+      }
+    </script>
+    <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+      body {
+        background-color: #FAF9F7;
+        color: #17151F;
+        font-family: 'Pretendard Variable', 'Pretendard', sans-serif;
+        word-break: keep-all;
+      }
+
+      h1, h2, h3 { text-wrap: balance; }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #FAF9F7; }
+      ::-webkit-scrollbar-thumb { background: #D8D4CC; border-radius: 4px; }
+      ::-webkit-scrollbar-thumb:hover { background: #BEB9AF; }
+
+      /* ============== Redesign v2 utilities ============== */
+      .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(91,33,182,0.25); border-radius: 100px;
+      }
+
+      /* Scroll-progress bar (top) */
+      .scroll-progress {
+        position: fixed; top: 0; left: 0;
+        height: 2px; width: 0%;
+        background: #5B21B6;
+        z-index: 60;
+        transition: width 0.1s linear;
+      }
+
+      /* Reveal-on-scroll base */
+      .reveal {
+        opacity: 0;
+        transform: translateY(28px);
+        transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1),
+                    transform 0.9s cubic-bezier(0.22,1,0.36,1);
+        will-change: transform, opacity;
+      }
+      .reveal.is-visible { opacity: 1; transform: translateY(0); }
+      .reveal.delay-1 { transition-delay: 0.1s; }
+      .reveal.delay-2 { transition-delay: 0.2s; }
+      .reveal.delay-3 { transition-delay: 0.3s; }
+      .reveal.delay-4 { transition-delay: 0.4s; }
+
+      /* Word reveal helper */
+      .word-reveal {
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(40px);
+        animation: revealWord 0.9s cubic-bezier(0.22,1,0.36,1) forwards;
+      }
+
+      /* 3D tilt parent */
+      .tilt-card {
+        transform-style: preserve-3d;
+        transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        will-change: transform;
+      }
+
+      /* 에디토리얼 액센트 텍스트 (구 grad-anim — 단색 딥퍼플) */
+      .grad-anim {
+        color: #5B21B6;
+      }
+
+      /* HUD frame corners — 라이트 테마에서 미사용 (호환용 무해 처리) */
+      .hud-corner { display: none; }
+
+      .scan-overlay::before { content: none; }
+
+      /* Live dot */
+      .live-dot {
+        display: inline-block; width: 6px; height: 6px;
+        border-radius: 50%; background: #22C55E;
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+
+      /* Ticker mono helper → 에디토리얼 오버라인 라벨 */
+      .ticker {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        color: rgba(91, 33, 182, 0.75);
+      }
+
+      /* Reduce-motion respect */
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "three": "https://aistudiocdn.com/three@^0.160.0",
+    "@emailjs/browser": "https://aistudiocdn.com/@emailjs/browser@^4.4.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <!-- Scroll progress indicator -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+
+  <!-- Global scroll-progress + reveal observer -->
+  <script>
+    // Scroll progress
+    const bar = document.getElementById('scrollProgress');
+    function updateScrollProgress() {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      const pct = max > 0 ? (h.scrollTop / max) * 100 : 0;
+      if (bar) bar.style.width = pct + '%';
+    }
+    window.addEventListener('scroll', updateScrollProgress, { passive: true });
+    window.addEventListener('resize', updateScrollProgress);
+
+    // Global IntersectionObserver for .reveal elements (re-scans for React renders)
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    function rescanReveals() {
+      document.querySelectorAll('.reveal:not(.is-visible)').forEach(el => revealObserver.observe(el));
+    }
+    new MutationObserver(rescanReveals).observe(document.body, { childList: true, subtree: true });
+    setTimeout(rescanReveals, 200);
+    setTimeout(rescanReveals, 1000);
+  </script>
+</body>
+</html>
