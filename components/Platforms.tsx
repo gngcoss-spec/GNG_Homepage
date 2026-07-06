@@ -5,13 +5,28 @@
 // 인터랙션: 카드 3D 틸트, 데이터 라인 호버, 백그라운드 그리드 펄스,
 //          스크롤 리빌, HUD 코너
 // ============================================================
-import React, { useState } from 'react';
-import { ScanFace, Network, Sparkles, Building2, Siren, ClipboardCheck, Camera, Warehouse, ArrowUpRight } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ScanFace, Network, Sparkles, Building2, Siren, ClipboardCheck, Camera, Warehouse, ArrowUpRight, ArrowRight } from 'lucide-react';
 import { PlatformItem } from '../types';
 import PlatformModal from './PlatformModal';
+import CampusMap from './CampusMap';
+
+// 캠퍼스 씬 리스트용 메타 (공간 매핑 · 한 줄 역할)
+const SCENE_META: Record<string, { zone: string; role: string }> = {
+  'SSiN':         { zone: 'GATE',       role: '출입 보안 · 방문자 사전 검증' },
+  'SSoN':         { zone: 'CONTROL',    role: 'DT 기반 3D 통합 관제' },
+  'SSAx':         { zone: 'HQ TOWER',   role: 'IBS·FMS·BEMS 운영 자동화' },
+  'SpaceOps':     { zone: 'OFFICE',     role: '스마트오피스 공간 운영' },
+  'Golden Bridge':{ zone: 'PUBLIC',     role: 'AI 대피안전 · 공공 안전망' },
+  'Smart FM':     { zone: 'FACTORY·LAB',role: 'QR 기반 AI 시설관리' },
+  'Edge H/W':     { zone: 'DEVICES',    role: '온디바이스 CCTV · 유도등' },
+  'Logistics DX': { zone: 'WAREHOUSE',  role: '물류·창고 자동화 (SIDONN)' },
+};
 
 const Platforms: React.FC = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformItem | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [autoIdx, setAutoIdx] = useState(0);
 
   const platforms: PlatformItem[] = [
     {
@@ -282,6 +297,22 @@ const Platforms: React.FC = () => {
 
   const icons = [ScanFace, Network, Sparkles, Building2, Siren, ClipboardCheck, Camera, Warehouse];
 
+  // 호버가 없을 때 3.8초 간격으로 플랫폼 자동 순회 (발견성 확보)
+  useEffect(() => {
+    if (hoveredId || selectedPlatform) return;
+    const timer = window.setInterval(() => {
+      setAutoIdx(prev => (prev + 1) % platforms.length);
+    }, 3800);
+    return () => window.clearInterval(timer);
+  }, [hoveredId, selectedPlatform, platforms.length]);
+
+  const activeId = hoveredId ?? platforms[autoIdx].id;
+  const activePlatform = platforms.find(p => p.id === activeId) ?? platforms[0];
+  const selectById = (id: string) => {
+    const found = platforms.find(p => p.id === id);
+    if (found) setSelectedPlatform(found);
+  };
+
   // ---- Tilt handler ----
   const handleTilt = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = e.currentTarget;
@@ -310,7 +341,107 @@ const Platforms: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        {/* ============================================================
+            데스크톱: 인터랙티브 캠퍼스 맵 패널 (맵 ↔ 리스트 양방향 동기화)
+            모바일: 디오라마 영상 + 카드 그리드
+        ============================================================ */}
+        <div className="hidden lg:block mb-16 reveal">
+            <div className="rounded-3xl bg-white border border-line overflow-hidden shadow-xl">
+              {/* 패널 헤더 */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-line">
+                <div className="flex items-center gap-3">
+                  <span className="live-dot" />
+                  <span className="ticker">CAMPUS DIGITAL TWIN · INTERACTIVE</span>
+                </div>
+                <span className="text-xs text-slate-400">
+                  공간에 마우스를 올리면 해당 플랫폼이 표시됩니다 · 클릭하면 상세 정보
+                </span>
+              </div>
+
+              <div className="grid grid-cols-12 items-stretch">
+                {/* 인터랙티브 캠퍼스 맵 */}
+                <div className="col-span-8 flex flex-col">
+                  <CampusMap
+                    activeId={activeId}
+                    onHoverChange={setHoveredId}
+                    onSelect={selectById}
+                  />
+                  {/* 활성 플랫폼 캡션 바 (맵 아래 — 핫스팟을 가리지 않도록) */}
+                  <div className="flex items-center gap-4 px-6 py-4 border-t border-line">
+                    <span className="font-mono text-[10px] tracking-[0.14em] text-primary shrink-0">
+                      {SCENE_META[activePlatform.id]?.zone}
+                    </span>
+                    <span className="shrink-0 flex items-baseline gap-2">
+                      <span className="text-lg font-bold text-ink">{activePlatform.title}</span>
+                      <span className="text-[11px] text-slate-500">{SCENE_META[activePlatform.id]?.role}</span>
+                    </span>
+                    <p className="flex-grow text-xs text-slate-500 leading-relaxed line-clamp-2 min-w-0">
+                      {activePlatform.description}
+                    </p>
+                    <button
+                      onClick={() => setSelectedPlatform(activePlatform)}
+                      className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
+                    >
+                      자세히 보기 <ArrowRight size={13} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* 제품 리스트 (호버 ↔ 맵 하이라이트 동기화) */}
+                <div className="col-span-4 border-l border-line flex flex-col">
+                  {platforms.map((platform, idx) => {
+                    const isActive = platform.id === activeId;
+                    return (
+                      <button
+                        key={platform.id}
+                        onMouseEnter={() => setHoveredId(platform.id)}
+                        onMouseLeave={() => setHoveredId(null)}
+                        onClick={() => setSelectedPlatform(platform)}
+                        className={`group/item flex-1 flex items-center gap-4 px-5 text-left border-b border-line last:border-b-0 transition-colors duration-300 ${
+                          isActive ? 'bg-[#F5F2FC]' : 'hover:bg-background'
+                        }`}
+                      >
+                        <span className={`font-mono text-[10px] w-7 shrink-0 transition-colors ${isActive ? 'text-primary' : 'text-slate-400'}`}>
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                        <span className={`w-1 h-8 rounded-full shrink-0 transition-colors duration-300 ${isActive ? 'bg-primary' : 'bg-line'}`} />
+                        <span className="min-w-0 flex-grow">
+                          <span className={`block text-sm font-bold truncate transition-colors ${isActive ? 'text-ink' : 'text-slate-600'}`}>
+                            {platform.title}
+                          </span>
+                          <span className="block text-[11px] text-slate-400 truncate">
+                            {SCENE_META[platform.id]?.role}
+                          </span>
+                        </span>
+                        <span className={`font-mono text-[9px] tracking-wider shrink-0 px-1.5 py-0.5 rounded border transition-colors ${
+                          isActive ? 'text-primary border-primary/40' : 'text-slate-400 border-line'
+                        }`}>
+                          {SCENE_META[platform.id]?.zone}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+        {/* 모바일: 회전 디오라마 영상 (앰비언트 비주얼) */}
+        <div className="lg:hidden mb-10 rounded-3xl overflow-hidden border border-line shadow-sm reveal">
+          <video
+            src="./campus_diorama.mp4"
+            poster="./campus_diorama_poster.jpg"
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full block"
+            aria-label="GNG 스마트캠퍼스 디오라마"
+          />
+        </div>
+
+        {/* 카드 그리드 — 모바일 전용 (데스크톱은 위 맵 패널) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:hidden">
           {platforms.map((platform, idx) => {
             const Icon = icons[idx];
             return (
