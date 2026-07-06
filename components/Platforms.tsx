@@ -6,7 +6,7 @@
 //          스크롤 리빌, HUD 코너
 // ============================================================
 import React, { useEffect, useState } from 'react';
-import { ScanFace, Network, Sparkles, Building2, Siren, ClipboardCheck, Camera, Warehouse, ArrowUpRight, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { PlatformItem } from '../types';
 import PlatformModal from './PlatformModal';
 import CampusMap from './CampusMap';
@@ -295,8 +295,6 @@ const Platforms: React.FC = () => {
     }
   ];
 
-  const icons = [ScanFace, Network, Sparkles, Building2, Siren, ClipboardCheck, Camera, Warehouse];
-
   // 호버가 없을 때 3.8초 간격으로 플랫폼 자동 순회 (발견성 확보)
   useEffect(() => {
     if (hoveredId || selectedPlatform) return;
@@ -311,18 +309,6 @@ const Platforms: React.FC = () => {
   const selectById = (id: string) => {
     const found = platforms.find(p => p.id === id);
     if (found) setSelectedPlatform(found);
-  };
-
-  // ---- Tilt handler ----
-  const handleTilt = (e: React.MouseEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    const rect = el.getBoundingClientRect();
-    const x = (e.clientX - rect.left) / rect.width - 0.5;
-    const y = (e.clientY - rect.top) / rect.height - 0.5;
-    el.style.transform = `perspective(1200px) rotateY(${x * 4}deg) rotateX(${-y * 4}deg) translateY(-8px)`;
-  };
-  const resetTilt = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.currentTarget.style.transform = 'perspective(1200px) rotateY(0) rotateX(0)';
   };
 
   return (
@@ -342,53 +328,54 @@ const Platforms: React.FC = () => {
         </div>
 
         {/* ============================================================
-            데스크톱: 인터랙티브 캠퍼스 맵 패널 (맵 ↔ 리스트 양방향 동기화)
-            모바일: 디오라마 영상 + 카드 그리드
+            인터랙티브 캠퍼스 맵 패널 (전 해상도 공통)
+            - 데스크톱: 맵 좌 / 리스트 우, 호버 ↔ 리스트 양방향 동기화
+            - 모바일: 맵 위 / 리스트 아래로 스택, 탭하면 상세 모달
         ============================================================ */}
-        <div className="hidden lg:block mb-16 reveal">
+        <div className="mb-4 reveal">
             <div className="rounded-3xl bg-white border border-line overflow-hidden shadow-xl">
               {/* 패널 헤더 */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-line">
+              <div className="flex items-center justify-between px-4 md:px-6 py-4 border-b border-line">
                 <div className="flex items-center gap-3">
                   <span className="live-dot" />
                   <span className="ticker">CAMPUS DIGITAL TWIN · INTERACTIVE</span>
                 </div>
-                <span className="text-xs text-slate-400">
-                  공간에 마우스를 올리면 해당 플랫폼이 표시됩니다 · 클릭하면 상세 정보
+                <span className="hidden md:block text-xs text-slate-400">
+                  공간을 선택하면 해당 플랫폼이 표시됩니다 · 클릭하면 상세 정보
                 </span>
               </div>
 
-              <div className="grid grid-cols-12 items-stretch">
+              <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
                 {/* 인터랙티브 캠퍼스 맵 */}
-                <div className="col-span-8 flex flex-col">
+                <div className="lg:col-span-8 flex flex-col">
                   <CampusMap
                     activeId={activeId}
                     onHoverChange={setHoveredId}
                     onSelect={selectById}
                   />
                   {/* 활성 플랫폼 캡션 바 (맵 아래 — 핫스팟을 가리지 않도록) */}
-                  <div className="flex items-center gap-4 px-6 py-4 border-t border-line">
+                  <div className="flex items-center gap-3 md:gap-4 px-4 md:px-6 py-4 border-t border-line">
                     <span className="font-mono text-[10px] tracking-[0.14em] text-primary shrink-0">
                       {SCENE_META[activePlatform.id]?.zone}
                     </span>
-                    <span className="shrink-0 flex items-baseline gap-2">
+                    <span className="shrink-0 flex items-baseline gap-2 min-w-0">
                       <span className="text-lg font-bold text-ink">{activePlatform.title}</span>
-                      <span className="text-[11px] text-slate-500">{SCENE_META[activePlatform.id]?.role}</span>
+                      <span className="hidden sm:inline text-[11px] text-slate-500">{SCENE_META[activePlatform.id]?.role}</span>
                     </span>
-                    <p className="flex-grow text-xs text-slate-500 leading-relaxed line-clamp-2 min-w-0">
+                    <p className="hidden md:block flex-grow text-xs text-slate-500 leading-relaxed line-clamp-2 min-w-0">
                       {activePlatform.description}
                     </p>
                     <button
                       onClick={() => setSelectedPlatform(activePlatform)}
-                      className="shrink-0 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
+                      className="shrink-0 ml-auto inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
                     >
                       자세히 보기 <ArrowRight size={13} />
                     </button>
                   </div>
                 </div>
 
-                {/* 제품 리스트 (호버 ↔ 맵 하이라이트 동기화) */}
-                <div className="col-span-4 border-l border-line flex flex-col">
+                {/* 제품 리스트 (호버/탭 ↔ 맵 하이라이트 동기화) */}
+                <div className="lg:col-span-4 border-t lg:border-t-0 lg:border-l border-line flex flex-col">
                   {platforms.map((platform, idx) => {
                     const isActive = platform.id === activeId;
                     return (
@@ -397,7 +384,7 @@ const Platforms: React.FC = () => {
                         onMouseEnter={() => setHoveredId(platform.id)}
                         onMouseLeave={() => setHoveredId(null)}
                         onClick={() => setSelectedPlatform(platform)}
-                        className={`group/item flex-1 flex items-center gap-4 px-5 text-left border-b border-line last:border-b-0 transition-colors duration-300 ${
+                        className={`group/item flex-1 flex items-center gap-4 px-5 py-3 text-left border-b border-line last:border-b-0 transition-colors duration-300 ${
                           isActive ? 'bg-[#F5F2FC]' : 'hover:bg-background'
                         }`}
                       >
@@ -426,72 +413,6 @@ const Platforms: React.FC = () => {
             </div>
           </div>
 
-        {/* 모바일: 회전 디오라마 영상 (앰비언트 비주얼) */}
-        <div className="lg:hidden mb-10 rounded-3xl overflow-hidden border border-line shadow-sm reveal">
-          <video
-            src="./campus_diorama.mp4"
-            poster="./campus_diorama_poster.jpg"
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full block"
-            aria-label="GNG 스마트캠퍼스 디오라마"
-          />
-        </div>
-
-        {/* 카드 그리드 — 모바일 전용 (데스크톱은 위 맵 패널) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 lg:hidden">
-          {platforms.map((platform, idx) => {
-            const Icon = icons[idx];
-            return (
-              <div
-                key={platform.id}
-                onClick={() => setSelectedPlatform(platform)}
-                onMouseMove={handleTilt}
-                onMouseLeave={resetTilt}
-                className={`tilt-card relative group rounded-3xl border border-line bg-white hover:border-primary/40 transition-colors duration-500 cursor-pointer reveal delay-${(idx % 4) + 1}`}
-              >
-                <div className="h-full bg-white rounded-3xl p-8 flex flex-col relative overflow-hidden transition-colors">
-
-                  {/* Background decorative text */}
-                  <div className="absolute -right-4 -top-4 text-9xl font-black text-ink/5 select-none pointer-events-none group-hover:text-primary/10 transition-colors">
-                    {idx + 1}
-                  </div>
-
-                  <div className="flex justify-between items-start mb-8">
-                    <div className="w-14 h-14 bg-[#F5F2FC] rounded-2xl flex items-center justify-center text-primary border border-line group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all shadow-sm">
-                      <Icon size={28} />
-                    </div>
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity transform translate-x-2 group-hover:translate-x-0">
-                      <ArrowUpRight className="text-slate-400" />
-                    </div>
-                  </div>
-
-                  <h3 className="text-3xl font-bold text-ink mb-2">{platform.title}</h3>
-                  <p className="text-xs font-semibold text-primary mb-6 uppercase tracking-wider">{platform.subtitle}</p>
-
-                  <p className="text-slate-600 mb-8 leading-relaxed flex-grow group-hover:text-slate-700 transition-colors">
-                    {platform.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-2 mt-auto">
-                    {platform.tags.map(tag => (
-                      <span key={tag} className="text-[10px] px-2 py-1 rounded bg-[#F5F2FC] border border-line text-slate-600 group-hover:border-primary/30 group-hover:text-primary transition-colors">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* 신규: 카드 하단 데이터 라인 (호버 시 fill) */}
-                  <div className="mt-6 h-0.5 w-full bg-[#F5F2FC] rounded-full overflow-hidden">
-                    <div className="h-full w-0 group-hover:w-full bg-primary transition-all duration-700"></div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </div>
 
       {/* Modal */}
