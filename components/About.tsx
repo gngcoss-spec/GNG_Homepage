@@ -10,12 +10,12 @@ import { ShieldCheck, Cpu, Activity, Video, Lock, Zap, BarChart3 } from 'lucide-
 import { TechItem } from '../types';
 
 const About: React.FC = () => {
-  // ---- 배경 영상 표시 여부: 데스크톱 + 모션 허용 환경에서만 ----
+  // ---- 배경 영상 표시 여부: 모션 허용 환경이면 모바일 포함 재생 ----
+  // (about_bg.mp4 0.8MB — 모바일 데이터 부담 없음. reduced-motion만 존중)
   const [showBgVideo, setShowBgVideo] = useState(false);
   useEffect(() => {
-    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setShowBgVideo(isDesktop && !reducedMotion);
+    setShowBgVideo(!reducedMotion);
   }, []);
 
   const techItems: TechItem[] = [
@@ -81,6 +81,8 @@ const About: React.FC = () => {
             </video>
             {/* 라이트 워시: 우측(텍스트)은 불투명 → 좌측으로 갈수록 영상 노출 (Hero와 반대 방향) */}
             <div className="absolute inset-0 bg-gradient-to-l from-background via-background/80 to-background/25" />
+            {/* 모바일 전용 워시: 텍스트가 전체 폭이라 한 겹 더 */}
+            <div className="absolute inset-0 bg-background/55 md:hidden" />
             {/* 상단 페이드: 섹션 경계와 자연스럽게 연결 */}
             <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent" />
             {/* 하단 페이드: Core Values와 자연스럽게 연결 */}

@@ -9,12 +9,12 @@ import React, { useEffect, useState } from 'react';
 import { ArrowRight, ChevronRight, Activity, Shield, Zap } from 'lucide-react';
 
 const Hero: React.FC = () => {
-  // ---- 배경 영상 표시 여부: 데스크톱 + 모션 허용 환경에서만 ----
+  // ---- 배경 영상 표시 여부: 모션 허용 환경이면 모바일 포함 재생 ----
+  // (hero_bg.mp4 0.7MB — 모바일 데이터 부담 없음. reduced-motion만 존중)
   const [showBgVideo, setShowBgVideo] = useState(false);
   useEffect(() => {
-    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setShowBgVideo(isDesktop && !reducedMotion);
+    setShowBgVideo(!reducedMotion);
   }, []);
 
   // ---- 단어별 리빌 헬퍼 ----
@@ -54,6 +54,8 @@ const Hero: React.FC = () => {
           </video>
           {/* 라이트 워시: 좌측(텍스트)은 불투명 → 우측으로 갈수록 영상 노출 */}
           <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-background/25" />
+          {/* 모바일 전용 워시: 텍스트가 중앙 전체 폭이라 한 겹 더 */}
+          <div className="absolute inset-0 bg-background/55 md:hidden" />
           {/* 상단 페이드: 네비게이션 영역 가독성 */}
           <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-background/90 to-transparent" />
           {/* 하단 페이드: 다음 섹션과 자연스럽게 연결 */}
