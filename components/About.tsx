@@ -10,12 +10,11 @@ import { ShieldCheck, Cpu, Activity, Video, Lock, Zap, BarChart3 } from 'lucide-
 import { TechItem } from '../types';
 
 const About: React.FC = () => {
-  // ---- 배경 영상 표시 여부: 모션 허용 환경이면 모바일 포함 재생 ----
-  // (about_bg.mp4 0.8MB — 모바일 데이터 부담 없음. reduced-motion만 존중)
-  const [showBgVideo, setShowBgVideo] = useState(false);
+  // ---- 배경 영상: 모바일 포함 항상 렌더링 ----
+  // reduced-motion 환경에서는 재생만 멈추고 포스터를 보여준다 (빈 배경 방지)
+  const [reducedMotion, setReducedMotion] = useState(false);
   useEffect(() => {
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setShowBgVideo(!reducedMotion);
+    setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }, []);
 
   const techItems: TechItem[] = [
@@ -61,34 +60,39 @@ const About: React.FC = () => {
     <section id="about" className="pb-24 relative border-t border-line bg-surface/50">
       {/* ============== 인트로 밴드: 풀블리드 배경 영상 (기존 좌측 이미지 대체) ============== */}
       <div className="relative mb-24 overflow-hidden">
-        {showBgVideo && (
-          <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              preload="metadata"
-              poster="./about_bg_poster.jpg"
-              onError={(e) => {
-                // 파일 없으면 배경 블록 전체를 숨기고 정적 디자인 유지
-                const wrap = e.currentTarget.parentElement as HTMLElement | null;
-                if (wrap) wrap.style.display = 'none';
-              }}
-              className="w-full h-full object-cover"
-            >
-              <source src="./about_bg.mp4" type="video/mp4" />
-            </video>
-            {/* 라이트 워시: 우측(텍스트)은 불투명 → 좌측으로 갈수록 영상 노출 (Hero와 반대 방향) */}
-            <div className="absolute inset-0 bg-gradient-to-l from-background via-background/80 to-background/25" />
-            {/* 모바일 전용 워시: 텍스트가 전체 폭이라 한 겹 더 */}
-            <div className="absolute inset-0 bg-background/55 md:hidden" />
-            {/* 상단 페이드: 섹션 경계와 자연스럽게 연결 */}
-            <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent" />
-            {/* 하단 페이드: Core Values와 자연스럽게 연결 */}
-            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
-          </div>
-        )}
+        <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+          <video
+            ref={(el) => {
+              // iOS/React 조합에서 muted 속성 처리 문제로 자동재생이 안 걸리는 경우 강제 킥
+              if (el && !reducedMotion) {
+                el.muted = true;
+                el.play().catch(() => { /* 저전력 모드 등 — 포스터 유지 */ });
+              }
+            }}
+            autoPlay={!reducedMotion}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            poster="./about_bg_poster.jpg"
+            onError={(e) => {
+              // 파일 없으면 배경 블록 전체를 숨기고 정적 디자인 유지
+              const wrap = e.currentTarget.parentElement as HTMLElement | null;
+              if (wrap) wrap.style.display = 'none';
+            }}
+            className="w-full h-full object-cover"
+          >
+            <source src="./about_bg.mp4" type="video/mp4" />
+          </video>
+          {/* 데스크톱 워시: 우측(텍스트)은 불투명 → 좌측으로 갈수록 영상 노출 (Hero와 반대 방향) */}
+          <div className="hidden md:block absolute inset-0 bg-gradient-to-l from-background via-background/80 to-background/25" />
+          {/* 모바일 워시: 균일하게 옅게 — 영상이 보이면서 텍스트 가독 확보 */}
+          <div className="absolute inset-0 bg-background/40 md:hidden" />
+          {/* 상단 페이드: 섹션 경계와 자연스럽게 연결 */}
+          <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent" />
+          {/* 하단 페이드: Core Values와 자연스럽게 연결 */}
+          <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-background to-transparent" />
+        </div>
 
         <div className="max-w-7xl mx-auto px-6 relative z-10 py-16 md:py-24">
           <div className="md:w-1/2 md:ml-auto">

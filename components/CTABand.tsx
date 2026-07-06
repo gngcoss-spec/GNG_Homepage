@@ -7,20 +7,25 @@ import React, { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 const CTABand: React.FC = () => {
-  // ---- 배경 영상 표시 여부: 데스크톱 + 모션 허용 환경에서만 ----
-  const [showBgVideo, setShowBgVideo] = useState(false);
+  // ---- 배경 영상: 모바일 포함 항상 렌더링 ----
+  // reduced-motion 환경에서는 재생만 멈추고 포스터를 보여준다 (빈 배경 방지)
+  const [reducedMotion, setReducedMotion] = useState(false);
   useEffect(() => {
-    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    setShowBgVideo(isDesktop && !reducedMotion);
+    setReducedMotion(window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }, []);
 
   return (
     <section className="relative py-24 md:py-32 overflow-hidden border-t border-line bg-surface/50">
-      {showBgVideo && (
-        <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
+      <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
           <video
-            autoPlay
+            ref={(el) => {
+              // iOS/React 조합에서 muted 속성 처리 문제로 자동재생이 안 걸리는 경우 강제 킥
+              if (el && !reducedMotion) {
+                el.muted = true;
+                el.play().catch(() => { /* 저전력 모드 등 — 포스터 유지 */ });
+              }
+            }}
+            autoPlay={!reducedMotion}
             muted
             loop
             playsInline
@@ -35,13 +40,12 @@ const CTABand: React.FC = () => {
           >
             <source src="./hero_bg.mp4" type="video/mp4" />
           </video>
-          {/* 중앙 정렬 텍스트 가독용 균일 워시 */}
-          <div className="absolute inset-0 bg-background/75" />
+          {/* 중앙 정렬 텍스트 가독용 워시 — 모바일은 조금 옅게 */}
+          <div className="absolute inset-0 bg-background/60 md:bg-background/75" />
           {/* 상·하단 페이드: 인접 섹션과 자연스럽게 연결 */}
           <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-background to-transparent" />
           <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
         </div>
-      )}
 
       <div className="max-w-4xl mx-auto px-6 relative z-10 text-center">
         <h2 className="text-sm font-semibold text-primary mb-4 tracking-wide uppercase flex items-center justify-center gap-2 reveal">
