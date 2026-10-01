@@ -1,14 +1,11 @@
-# GNG Redesign — 실행 가이드
+# GNG Homepage — 실행·배포 가이드
 
-> 화면이 까맣게 보이는 이유: React + TypeScript(.tsx) 프로젝트는 브라우저가 직접 실행할 수 없고
-> **빌드 도구(Vite)가 TSX를 JS로 변환해야** 합니다.
-> file:// 로 열거나 단순 정적 서버로는 동작하지 않습니다.
+> React 19 + TypeScript + Vite + Tailwind CSS(PostCSS 빌드).
+> `.tsx`는 브라우저가 직접 실행할 수 없으므로 **반드시 Vite로** 실행합니다. `file://`이나 단순 정적 서버로는 동작하지 않습니다.
 
 ---
 
-## 가장 빠른 실행 방법 (권장)
-
-Node.js가 설치되어 있다면 (없으면 https://nodejs.org 에서 LTS 설치):
+## 실행
 
 ```cmd
 cd D:\DEV_2026\GNG_Homepage_rev_260511\GNG_Homepage_rev_260510\redesigned
@@ -16,26 +13,28 @@ npm install
 npm run dev
 ```
 
-`npm run dev` 실행 후 자동으로 브라우저가 열리고 `http://localhost:5173` 에서 동작합니다.
-첫 실행 시 `npm install`은 1~3분 정도 걸립니다.
-
----
-
-## 만약 npm install에서 에러가 난다면
-
-1. **Node.js 버전 확인**: `node --version` 결과가 v18 이상이어야 합니다.
-2. **레지스트리 캐시 정리**: `npm cache clean --force`
-3. **재시도**: `npm install`
-
----
-
-## 개발 중 주요 명령어
+`npm run dev` 후 `http://localhost:5173` 에서 확인합니다. (`start_server.bat`도 같은 동작)
 
 | 명령 | 용도 |
 |---|---|
-| `npm run dev` | 개발 서버 (핫 리로드 포함) |
-| `npm run build` | 프로덕션 빌드 → `build/` 폴더 |
-| `npm run preview` | 빌드된 결과 미리보기 |
+| `npm run dev` | 개발 서버 (핫 리로드) |
+| `npm run build` | `tsc` 타입 검사 + 프로덕션 빌드 → `build/` |
+| `npm run preview` | 빌드 결과 미리보기 (배포 전 최종 확인은 이 방식으로) |
+
+Node.js 18 이상 필요. `npm install` 에러 시 `node --version` 확인 → `npm cache clean --force` → 재시도.
+
+---
+
+## 배포
+
+| 대상 | 설정 | 트리거 |
+|---|---|---|
+| **gngss.co.kr (공식)** | `netlify.toml` — `npm run build`, publish `build` | Netlify에 연결된 브랜치 push |
+| GitHub Pages (검토용) | `.github/workflows/deploy.yml` | `main` push |
+
+- 두 대상 모두 같은 `build/` 산출물을 쓰며 `vite.config.ts`의 `base: './'` 덕분에 루트·하위 경로 어디서나 동작합니다.
+- 대표 URL은 `https://gngss.co.kr/` (`index.html`의 canonical). GitHub Pages 주소는 검색 색인 대상이 아니므로 외부에 공유하지 않습니다.
+- 배포 후 확인: 첫 화면 헤드라인 표시, `/#contact` 직접 진입, `/#product-sson` 모달 오픈, 모바일에서 영상이 화면에 보일 때만 재생.
 
 ---
 
@@ -43,54 +42,30 @@ npm run dev
 
 ```
 redesigned/
-├── package.json          ← npm 의존성
-├── vite.config.ts        ← Vite 설정
-├── tsconfig.json         ← TypeScript 설정
-├── index.html            ← 진입점
-├── index.tsx             ← React 마운트
-├── index.css             ← 글로벌 CSS
-├── App.tsx               ← 루트 컴포넌트
-├── types.ts              ← 타입 정의
-│
+├── index.html             ← 진입점 (메타·JSON-LD·스크롤 복원·reveal 옵저버)
+├── index.tsx              ← React 마운트 + index.css import
+├── index.css              ← Tailwind 지시문 + 커스텀 유틸리티(.reveal, .word-reveal, .ticker …)
+├── tailwind.config.js     ← 디자인 토큰·keyframes
+├── postcss.config.js
+├── App.tsx                ← 섹션 순서
+├── types.ts
 ├── components/
-│   ├── Navbar.tsx
-│   ├── Hero.tsx           ← 3D 디지털트윈 + 카운트업 + HUD
-│   ├── About.tsx          ← 스크롤 리빌 + 카드 틸트
-│   ├── Platforms.tsx      ← 3개 플랫폼 카드 (SSiN/SSoN/SSAx)
-│   ├── PlatformModal.tsx  ← 플랫폼 상세 모달
-│   ├── Process.tsx        ← 4단계 진행도 라인
-│   ├── Contact.tsx        ← EmailJS 폼
-│   ├── Footer.tsx         ← 라이브 시계
-│   ├── LegalModal.tsx     ← 약관/정책 모달
-│   └── DigitalTwinScene.tsx  ← Three.js 3D 씬
-│
-├── logo.png               ← 로고
-├── hero_dashboard.png     ← Hero 우측 이미지
-├── about_tech.png         ← About 좌측 이미지
-│
-└── dist/                  ← 원본 빌드 결과 (참고용)
+│   ├── Navbar / Hero / About / WhyGNG / Company / Process / Platforms / Spotlight / CTABand / Contact / Footer
+│   ├── BackgroundVideo.tsx    ← 배경 영상 공용 (모션 감소·가시성 기반 재생)
+│   ├── CampusMap.tsx          ← 제품 적용 영역 개념도
+│   ├── PlatformModal.tsx / LegalModal.tsx
+├── public/                ← logo.png, hero_bg.mp4(+poster), about_bg.mp4(+poster), campus_map.webp, og-image.png, robots.txt, sitemap.xml
+├── IMPROVEMENT_PLAN.md    ← 2026-10 개선 기획안 (적용 이력 포함)
+└── REDESIGN_NOTES.md      ← 2026-05 리디자인 v2 변경 노트 (이력)
 ```
 
 ---
 
-## 화면이 안 나올 때 체크리스트
+## 화면이 안 나올 때
 
-1. ✅ file:// 로 열지 말고 반드시 `http://localhost:5173` 으로 접속
-2. ✅ `npm install` 완료되었는지 확인
-3. ✅ 개발자 도구 Console 탭에서 빨간 에러 메시지 확인
-4. ✅ 브라우저 캐시 강제 새로고침 (Ctrl + Shift + R)
+1. `file://`이 아닌 `http://localhost:5173`으로 접속
+2. `npm install` 완료 확인
+3. 개발자 도구 Console의 에러 메시지 확인
+4. 강제 새로고침 (Ctrl + Shift + R)
 
----
-
-## 기존 dist/ 폴더로 원본 사이트 확인하기
-
-원본 빌드 결과(`dist/index.html` + `dist/assets/index-Dyuz3w4j.js`)는 그대로 보존되어 있습니다.
-원본을 비교 확인하고 싶으시다면 아래 경로에 원본 풀 사이트가 있습니다:
-
-```
-D:\DEV_2026\GNG_Homepage_rev_260511\GNG_Homepage_rev_260510\original_site\gng_homepage_251202\
-```
-
----
-
-*문제가 계속되면 Console에 표시된 정확한 에러 메시지를 알려주세요.*
+원본 사이트 비교용 소스: `D:\DEV_2026\GNG_Homepage_rev_260511\GNG_Homepage_rev_260510\original_site\gng_homepage_251202\`

@@ -1,5 +1,9 @@
 # GNG Homepage Redesign v2 — 변경 사항 노트
 
+> **[2026-10-01 이력 안내]** 이 문서는 2026-05 리디자인 v2(Three.js 디지털트윈 씬 + HUD) 시점의 기록입니다.
+> 이후 라이트 에디토리얼 테마·배경 영상·8개 제품·캠퍼스 맵으로 바뀌었고, Three.js 씬(`DigitalTwinScene.tsx`)과 importmap 방식은 제거되었습니다.
+> 현재 실행·배포 방법은 `SETUP.md`, 개선 내역은 `IMPROVEMENT_PLAN.md`를 보세요. 아래 6.1절의 정적 서버 실행 안내는 더 이상 유효하지 않습니다.
+
 > 작성일: 2026-05-12
 > 원본: `original_site/gng_homepage_251202/`
 > 작업본: `redesigned/`

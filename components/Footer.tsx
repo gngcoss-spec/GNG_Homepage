@@ -13,11 +13,20 @@ const Footer: React.FC = () => {
   // ---- 신규: 실시간 시계 ----
   const [now, setNow] = useState<string>('--:--:--');
   const [today, setToday] = useState<string>('----.--.--');
+  const [year, setYear] = useState(new Date().getFullYear());
   useEffect(() => {
+    const dateFormatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit',
+    });
+    const timeFormatter = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Seoul', hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23',
+    });
     const tick = () => {
       const d = new Date();
-      setNow(d.toTimeString().substring(0, 8));
-      setToday(d.toISOString().substring(0, 10).replace(/-/g, '.'));
+      const kstDate = dateFormatter.format(d);
+      setNow(timeFormatter.format(d));
+      setToday(kstDate.replace(/-/g, '.'));
+      setYear(Number(kstDate.slice(0, 4)));
     };
     tick();
     const id = window.setInterval(tick, 1000);
@@ -68,11 +77,11 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-ink font-semibold mb-4">바로가기</h4>
             <ul className="space-y-2 text-slate-600">
-              <li><a href="#about" className="hover:text-primary transition-colors">우리의 방향</a></li>
-              <li><a href="#tech" className="hover:text-primary transition-colors">기술</a></li>
+              <li><a href="#company" className="hover:text-primary transition-colors">회사소개</a></li>
+              <li><a href="#platform" className="hover:text-primary transition-colors">솔루션</a></li>
+              <li><a href="#spotlight" className="hover:text-primary transition-colors">Golden Bridge</a></li>
               <li><a href="#process" className="hover:text-primary transition-colors">전환 모델</a></li>
-              <li><a href="#platform" className="hover:text-primary transition-colors">제품</a></li>
-              <li><a href="#contact" className="hover:text-primary transition-colors">문의하기</a></li>
+              <li><a href="#contact" className="hover:text-primary transition-colors">문의</a></li>
             </ul>
           </div>
 
@@ -100,7 +109,7 @@ const Footer: React.FC = () => {
         </div>
 
         <div className="pt-8 border-t border-line flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-slate-500">© 2024 GNG Co., Ltd. All rights reserved.</p>
+          <p className="text-slate-500">© {year} GNG Co., Ltd. All rights reserved.</p>
           <div className="flex gap-4 ticker text-slate-500">
             <span>SINCE · 2024.09</span>
             <span>·</span>

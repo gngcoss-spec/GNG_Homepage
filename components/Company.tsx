@@ -65,9 +65,10 @@ const Company: React.FC = () => {
               </div>
             </div>
 
-            <p className="text-slate-700 font-medium mb-4">
+            <p className="text-slate-700 font-medium mb-1">
               안전·보안 및 디지털 전환(AX·DX·SI) 분야 18년 현장 경험
             </p>
+            <p className="text-xs text-slate-500 mb-4">※ 법인 설립(2024.09) 이전 재직 경력을 포함한 대표 개인 이력입니다.</p>
             <ul className="space-y-3 text-sm text-slate-600 leading-relaxed">
               <li className="flex gap-3">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0"></span>
@@ -86,7 +87,7 @@ const Company: React.FC = () => {
 
           {/* 연혁 타임라인 */}
           <div className="relative rounded-2xl bg-white border border-line p-8 overflow-hidden reveal delay-1">
-            <div className="ticker text-primary/60 mb-6">HISTORY</div>
+            <div className="ticker text-primary/60 mb-6">HISTORY · GNG 법인 연혁</div>
             <ol className="relative border-l border-line space-y-6 ml-2">
               {history.map((item, idx) => (
                 <li key={idx} className="pl-6 relative">

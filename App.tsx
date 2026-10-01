@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
 import WhyGNG from './components/WhyGNG';
+import Company from './components/Company';
 import Platforms from './components/Platforms';
 import Process from './components/Process';
 import Spotlight from './components/Spotlight';
@@ -19,6 +20,7 @@ const App: React.FC = () => {
         <Hero />
         <About />
         <WhyGNG />
+        <Company />
         <Process />
         <Platforms />
         <Spotlight />

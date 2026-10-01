@@ -5,6 +5,9 @@ import emailjs from '@emailjs/browser';
 const Contact: React.FC = () => {
   const formRef = useRef<HTMLFormElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedSolution, setSelectedSolution] = useState('');
+  const [privacyConsent, setPrivacyConsent] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'consent-required'>('idle');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,21 +19,24 @@ const Contact: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+    setSubmitStatus('idle');
   };
 
   useEffect(() => {
     // Function to handle inquiry data
     const handleInquiryData = (solutionName: string | null) => {
       if (solutionName) {
+        setSelectedSolution(solutionName);
+        setSubmitStatus('idle');
         setFormData(prev => ({
           ...prev,
           type: '솔루션 도입 문의',
-          message: `${solutionName}에 대해 궁금합니다.`
+          message: prev.message.trim() ? prev.message : `${solutionName}에 대해 궁금합니다.`
         }));
 
         // Focus name input for better UX
-        const nameInput = document.querySelector('input[name="name"]') as HTMLInputElement;
-        if (nameInput) nameInput.focus();
+        const nameInput = formRef.current?.querySelector<HTMLInputElement>('#contact-name');
+        nameInput?.focus({ preventScroll: true });
       }
     };
 
@@ -55,8 +61,15 @@ const Contact: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formRef.current) return;
+    if (!formRef.current || isSubmitting) return;
+    if (!privacyConsent) {
+      setSubmitStatus('consent-required');
+      formRef.current.querySelector<HTMLInputElement>('#contact-privacy-consent')?.focus();
+      return;
+    }
+    if (!formRef.current.reportValidity()) return;
 
+    setSubmitStatus('idle');
     setIsSubmitting(true);
 
     // TODO: Replace with your actual EmailJS keys
@@ -73,12 +86,12 @@ const Contact: React.FC = () => {
         PUBLIC_KEY
       );
 
-      alert('문의가 성공적으로 전송되었습니다. 담당자가 곧 연락드리겠습니다.');
+      setSubmitStatus('success');
       setFormData({ name: '', email: '', company: '', type: '일반 문의', message: '' });
-    } catch (error) {
-      console.error('EmailJS Error:', error);
-      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
-      alert(`문의 전송에 실패했습니다.\n에러 내용: ${errorMessage}\n\n잠시 후 다시 시도해주세요. 또는 gngss@gngss.co.kr로 직접 문의 부탁드립니다.`);
+      setSelectedSolution('');
+      setPrivacyConsent(false);
+    } catch {
+      setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
     }
@@ -132,15 +145,23 @@ const Contact: React.FC = () => {
           </div>
 
           {/* Right Form */}
-          <div className="bg-white border border-line rounded-3xl p-8 shadow-[0_2px_16px_rgba(23,21,31,0.06)]">
+          <div className="bg-white border border-line rounded-3xl p-5 sm:p-8 shadow-[0_2px_16px_rgba(23,21,31,0.06)]">
             <h3 className="text-2xl font-bold text-ink mb-6">문의하기</h3>
             <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <input type="hidden" name="solution" value={selectedSolution} />
+              {selectedSolution && (
+                <p className="rounded-xl bg-primary/10 px-4 py-3 text-sm font-medium text-primary">
+                  선택한 솔루션: {selectedSolution}
+                </p>
+              )}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">이름</label>
+                  <label htmlFor="contact-name" className="text-xs font-semibold text-slate-600 uppercase tracking-wider">이름</label>
                   <input
+                    id="contact-name"
                     type="text"
                     name="name"
+                    autoComplete="name"
                     value={formData.name}
                     onChange={handleChange}
                     required
@@ -149,10 +170,12 @@ const Contact: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">회사/기관명</label>
+                  <label htmlFor="contact-company" className="text-xs font-semibold text-slate-600 uppercase tracking-wider">회사/기관명 (선택)</label>
                   <input
+                    id="contact-company"
                     type="text"
                     name="company"
+                    autoComplete="organization"
                     value={formData.company}
                     onChange={handleChange}
                     className="w-full bg-white border border-line rounded-xl px-4 py-3 text-ink focus:outline-none focus:border-primary transition-all placeholder:text-slate-400"
@@ -162,10 +185,12 @@ const Contact: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">이메일</label>
+                <label htmlFor="contact-email" className="text-xs font-semibold text-slate-600 uppercase tracking-wider">이메일</label>
                 <input
+                  id="contact-email"
                   type="email"
                   name="email"
+                  autoComplete="email"
                   value={formData.email}
                   onChange={handleChange}
                   required
@@ -175,9 +200,10 @@ const Contact: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">문의 유형</label>
+                <label htmlFor="contact-type" className="text-xs font-semibold text-slate-600 uppercase tracking-wider">문의 유형</label>
                 <div className="relative">
                   <select
+                    id="contact-type"
                     name="type"
                     value={formData.type}
                     onChange={handleChange}
@@ -197,8 +223,9 @@ const Contact: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-600 uppercase tracking-wider">문의 내용</label>
+                <label htmlFor="contact-message" className="text-xs font-semibold text-slate-600 uppercase tracking-wider">문의 내용</label>
                 <textarea
+                  id="contact-message"
                   name="message"
                   value={formData.message}
                   onChange={handleChange}
@@ -207,6 +234,31 @@ const Contact: React.FC = () => {
                   className="w-full bg-white border border-line rounded-xl px-4 py-3 text-ink focus:outline-none focus:border-primary transition-all resize-none placeholder:text-slate-400"
                   placeholder="문의하실 내용을 입력해주세요."
                 ></textarea>
+              </div>
+
+              <div className="rounded-xl border border-line bg-background p-4 text-xs leading-relaxed text-slate-600">
+                <p id="contact-privacy-notice">
+                  수집 항목: 이름·이메일·회사명(선택)·문의 내용<br />
+                  목적: 문의 응대<br />
+                  보유기간: 처리 목적 달성 시까지<br />
+                  외부 전송: EmailJS 이메일 발송 서비스
+                </p>
+                <label htmlFor="contact-privacy-consent" className="mt-3 flex min-h-11 cursor-pointer items-center gap-3 text-sm text-ink">
+                  <input
+                    id="contact-privacy-consent"
+                    type="checkbox"
+                    name="privacy_consent"
+                    checked={privacyConsent}
+                    onChange={(e) => {
+                      setPrivacyConsent(e.target.checked);
+                      setSubmitStatus('idle');
+                    }}
+                    required
+                    aria-describedby="contact-privacy-notice"
+                    className="h-4 w-4 shrink-0 accent-primary"
+                  />
+                  개인정보 수집·이용 및 외부 전송에 동의합니다. (필수)
+                </label>
               </div>
 
               <button
@@ -226,6 +278,16 @@ const Contact: React.FC = () => {
                   </>
                 )}
               </button>
+              <div role="status" aria-live="polite" aria-atomic="true" className="text-sm leading-relaxed text-slate-700">
+                {submitStatus === 'success' && '문의가 성공적으로 전송되었습니다. 담당자가 곧 연락드리겠습니다.'}
+                {submitStatus === 'consent-required' && '개인정보 수집·이용 및 외부 전송에 동의해주세요.'}
+                {submitStatus === 'error' && (
+                  <p>
+                    문의 전송에 실패했습니다. 입력하신 내용은 유지됩니다. 잠시 후 다시 시도해주세요. 또는{' '}
+                    <a href="mailto:gngss@gngss.co.kr" className="font-medium text-primary underline underline-offset-2">gngss@gngss.co.kr</a>로 직접 문의 부탁드립니다.
+                  </p>
+                )}
+              </div>
             </form>
           </div>
         </div>

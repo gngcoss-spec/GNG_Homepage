@@ -5,7 +5,7 @@
 // 인터랙션: 카드 3D 틸트, 데이터 라인 호버, 백그라운드 그리드 펄스,
 //          스크롤 리빌, HUD 코너
 // ============================================================
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { PlatformItem } from '../types';
 import PlatformModal from './PlatformModal';
@@ -23,12 +23,19 @@ const SCENE_META: Record<string, { zone: string; role: string }> = {
   'Logistics DX': { zone: 'WAREHOUSE',  role: '물류·창고 자동화 (SIDONN)' },
 };
 
+const productHash = (id: string) => `#product-${id.toLowerCase().replace(/[\s/]+/g, '-')}`;
+
 const Platforms: React.FC = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformItem | null>(null);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [focusedId, setFocusedId] = useState<string | null>(null);
   const [autoIdx, setAutoIdx] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const [reducedMotion, setReducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const sectionRef = useRef<HTMLElement>(null);
+  const originalTitle = useRef(document.title);
 
-  const platforms: PlatformItem[] = [
+  const platforms = useMemo<PlatformItem[]>(() => [
     {
       id: 'SSiN',
       title: 'SSiN',
@@ -293,26 +300,64 @@ const Platforms: React.FC = () => {
         }
       }
     }
-  ];
+  ], []);
 
-  // 호버가 없을 때 3.8초 간격으로 플랫폼 자동 순회 (발견성 확보)
   useEffect(() => {
-    if (hoveredId || selectedPlatform) return;
+    const section = sectionRef.current;
+    if (!section) return;
+    const observer = new IntersectionObserver(([entry]) => setIsVisible(entry.isIntersecting));
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const updateMotion = () => setReducedMotion(media.matches);
+    media.addEventListener('change', updateMotion);
+    return () => media.removeEventListener('change', updateMotion);
+  }, []);
+
+  useEffect(() => {
+    const syncProductHash = () => {
+      setSelectedPlatform(platforms.find(platform => productHash(platform.id) === window.location.hash) ?? null);
+    };
+    syncProductHash();
+    window.addEventListener('hashchange', syncProductHash);
+    return () => window.removeEventListener('hashchange', syncProductHash);
+  }, [platforms]);
+
+  useEffect(() => {
+    document.title = selectedPlatform ? `${selectedPlatform.title} | 가능가 GNG` : originalTitle.current;
+    return () => { document.title = originalTitle.current; };
+  }, [selectedPlatform]);
+
+  // 화면 안에서 사용자가 조작하지 않을 때만 3.8초 간격으로 자동 순회.
+  useEffect(() => {
+    if (!isVisible || hoveredId || focusedId || selectedPlatform || reducedMotion) return;
     const timer = window.setInterval(() => {
       setAutoIdx(prev => (prev + 1) % platforms.length);
     }, 3800);
     return () => window.clearInterval(timer);
-  }, [hoveredId, selectedPlatform, platforms.length]);
+  }, [isVisible, hoveredId, focusedId, selectedPlatform, reducedMotion, platforms.length]);
 
-  const activeId = hoveredId ?? platforms[autoIdx].id;
+  const activeId = focusedId ?? hoveredId ?? platforms[autoIdx].id;
   const activePlatform = platforms.find(p => p.id === activeId) ?? platforms[0];
   const selectById = (id: string) => {
     const found = platforms.find(p => p.id === id);
-    if (found) setSelectedPlatform(found);
+    if (!found) return;
+    window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}${productHash(found.id)}`);
+    setSelectedPlatform(found);
   };
 
+  const closePlatform = useCallback(() => {
+    if (window.location.hash.startsWith('#product-')) {
+      window.history.replaceState(window.history.state, '', `${window.location.pathname}${window.location.search}#platform`);
+    }
+    setSelectedPlatform(null);
+  }, []);
+
   return (
-    <section id="platform" className="py-32 bg-surface border-y border-line relative overflow-hidden">
+    <section ref={sectionRef} id="platform" className="py-32 bg-surface border-y border-line relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="mb-20 flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
@@ -337,13 +382,13 @@ const Platforms: React.FC = () => {
               {/* 패널 헤더 */}
               <div className="flex items-center justify-between px-4 md:px-6 py-4 border-b border-line">
                 <div className="flex items-center gap-3">
-                  <span className="live-dot" />
-                  <span className="ticker">CAMPUS DIGITAL TWIN · INTERACTIVE</span>
+                  <span className="ticker">제품 적용 영역 개념도 · INTERACTIVE</span>
                 </div>
-                <span className="hidden md:block text-xs text-slate-400">
+                <span className="hidden lg:block text-xs text-slate-400">
                   공간을 선택하면 해당 플랫폼이 표시됩니다 · 클릭하면 상세 정보
                 </span>
               </div>
+              <p className="px-4 py-3 text-xs text-slate-500 lg:hidden">목록에서 제품을 선택하세요</p>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 items-stretch">
                 {/* 인터랙티브 캠퍼스 맵 */}
@@ -351,10 +396,11 @@ const Platforms: React.FC = () => {
                   <CampusMap
                     activeId={activeId}
                     onHoverChange={setHoveredId}
+                    onFocusChange={setFocusedId}
                     onSelect={selectById}
                   />
                   {/* 활성 플랫폼 캡션 바 (맵 아래 — 핫스팟을 가리지 않도록) */}
-                  <div className="flex items-center gap-3 md:gap-4 px-4 md:px-6 py-4 border-t border-line">
+                  <div className="flex flex-wrap md:flex-nowrap items-center gap-3 md:gap-4 px-4 md:px-6 py-4 border-t border-line">
                     <span className="font-mono text-[10px] tracking-[0.14em] text-primary shrink-0">
                       {SCENE_META[activePlatform.id]?.zone}
                     </span>
@@ -366,7 +412,10 @@ const Platforms: React.FC = () => {
                       {activePlatform.description}
                     </p>
                     <button
-                      onClick={() => setSelectedPlatform(activePlatform)}
+                      type="button"
+                      onFocus={() => setFocusedId(activePlatform.id)}
+                      onBlur={() => setFocusedId(null)}
+                      onClick={() => selectById(activePlatform.id)}
                       className="shrink-0 ml-auto inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
                     >
                       자세히 보기 <ArrowRight size={13} />
@@ -381,9 +430,12 @@ const Platforms: React.FC = () => {
                     return (
                       <button
                         key={platform.id}
+                        type="button"
                         onMouseEnter={() => setHoveredId(platform.id)}
                         onMouseLeave={() => setHoveredId(null)}
-                        onClick={() => setSelectedPlatform(platform)}
+                        onFocus={() => setFocusedId(platform.id)}
+                        onBlur={() => setFocusedId(null)}
+                        onClick={() => selectById(platform.id)}
                         className={`group/item flex-1 flex items-center gap-4 px-5 py-3 text-left border-b border-line last:border-b-0 transition-colors duration-300 ${
                           isActive ? 'bg-[#F5F2FC]' : 'hover:bg-background'
                         }`}
@@ -420,7 +472,7 @@ const Platforms: React.FC = () => {
         <PlatformModal
           platform={selectedPlatform}
           isOpen={!!selectedPlatform}
-          onClose={() => setSelectedPlatform(null)}
+          onClose={closePlatform}
         />
       )}
     </section>

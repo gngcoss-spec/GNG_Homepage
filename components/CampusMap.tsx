@@ -52,17 +52,20 @@ const EDGE_ZONE: Zone = {
 interface CampusMapProps {
   activeId: string | null;
   onHoverChange: (id: string | null) => void;
+  onFocusChange: (id: string | null) => void;
   onSelect: (id: string) => void;
   className?: string;
 }
 
-const CampusMap: React.FC<CampusMapProps> = ({ activeId, onHoverChange, onSelect, className = '' }) => {
+const CampusMap: React.FC<CampusMapProps> = ({ activeId, onHoverChange, onFocusChange, onSelect, className = '' }) => {
   const isEdgeActive = activeId === 'Edge H/W';
   const activeZone = isEdgeActive ? EDGE_ZONE : ZONES.find(z => z.id === activeId) ?? null;
 
   const hoverProps = (id: string) => ({
     onMouseEnter: () => onHoverChange(id),
     onMouseLeave: () => onHoverChange(null),
+    onFocus: () => onFocusChange(id),
+    onBlur: () => onFocusChange(null),
     onClick: () => onSelect(id),
   });
 
@@ -126,7 +129,7 @@ const CampusMap: React.FC<CampusMapProps> = ({ activeId, onHoverChange, onSelect
           key={z.id}
           type="button"
           aria-label={`${z.id} 영역`}
-          className="absolute cursor-pointer bg-transparent"
+          className="absolute cursor-pointer bg-transparent focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
           style={{ left: `${z.rect.x}%`, top: `${z.rect.y}%`, width: `${z.rect.w}%`, height: `${z.rect.h}%` }}
           {...hoverProps(z.id)}
         />
@@ -136,8 +139,8 @@ const CampusMap: React.FC<CampusMapProps> = ({ activeId, onHoverChange, onSelect
           key={`edge-${i}`}
           type="button"
           aria-label="Edge H/W 센서폴"
-          className="absolute cursor-pointer bg-transparent rounded-full -translate-x-1/2 -translate-y-1/2"
-          style={{ left: `${p.x}%`, top: `${p.y}%`, width: '4.5%', height: '7%' }}
+          className="absolute cursor-pointer bg-transparent rounded-full -translate-x-1/2 -translate-y-1/2 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary"
+          style={{ left: `${p.x}%`, top: `${p.y}%`, width: '4.5%', height: '7%', minWidth: 44, minHeight: 44 }}
           {...hoverProps('Edge H/W')}
         />
       ))}

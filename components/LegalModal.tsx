@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useId, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 interface LegalModalProps {
@@ -8,14 +9,55 @@ interface LegalModalProps {
 }
 
 const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, type }) => {
+    const titleId = useId();
+    const panelRef = useRef<HTMLDivElement>(null);
+    const closeButtonRef = useRef<HTMLButtonElement>(null);
+    const onCloseRef = useRef(onClose);
+    onCloseRef.current = onClose;
+
     useEffect(() => {
-        if (isOpen) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
-        }
+        if (!isOpen) return;
+
+        const opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+        closeButtonRef.current?.focus({ preventScroll: true });
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                onCloseRef.current();
+                return;
+            }
+            if (event.key !== 'Tab') return;
+
+            const panel = panelRef.current;
+            if (!panel) return;
+            const focusable = Array.from(panel.querySelectorAll<HTMLElement>(
+                'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+            )).filter(element => element.getClientRects().length > 0);
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (!first || !last) {
+                event.preventDefault();
+                panel.focus();
+            } else if (!panel.contains(document.activeElement)) {
+                event.preventDefault();
+                (event.shiftKey ? last : first).focus();
+            } else if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
         return () => {
-            document.body.style.overflow = 'unset';
+            document.removeEventListener('keydown', handleKeyDown);
+            document.body.style.overflow = previousOverflow;
+            if (opener?.isConnected) opener.focus({ preventScroll: true });
         };
     }, [isOpen]);
 
@@ -32,16 +74,13 @@ const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, type }) => {
             <p>
                 <strong>제2조 (개인정보의 처리 목적)</strong><br />
                 회사는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 개인정보 보호법 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.<br />
-                1. 홈페이지 회원 가입 및 관리<br />
-                2. 재화 또는 서비스 제공<br />
-                3. 마케팅 및 광고에의 활용
+                - 고객 문의 응대<br />
+                - 외부 전송: EmailJS 이메일 발송 서비스를 통해 문의 내용을 전송합니다.
             </p>
             <p>
                 <strong>제3조 (개인정보의 처리 및 보유기간)</strong><br />
                 ① 회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 개인정보를 수집 시에 동의받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.<br />
-                ② 각각의 개인정보 처리 및 보유 기간은 다음과 같습니다.<br />
-                - 고객 문의 및 상담: 문의 처리 완료 후 3년<br />
-                - 서비스 이용 기록: 3년
+                ② 고객 문의 응대를 위한 개인정보는 처리 목적 달성 시까지 보유합니다.
             </p>
             <p>
                 <strong>제4조 (정보주체의 권리·의무 및 행사방법)</strong><br />
@@ -54,7 +93,8 @@ const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, type }) => {
             <p>
                 <strong>제5조 (처리하는 개인정보 항목)</strong><br />
                 회사는 다음의 개인정보 항목을 처리하고 있습니다.<br />
-                - 필수항목: 성명, 회사명, 이메일, 연락처, 문의내용
+                - 필수항목: 이름, 이메일, 문의 내용<br />
+                - 선택항목: 회사명
             </p>
             <p>
                 <strong>제6조 (개인정보의 파기)</strong><br />
@@ -99,33 +139,37 @@ const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, type }) => {
         </div>
     );
 
-    return (
+    return createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
             <div
                 className="absolute inset-0 bg-ink/40 backdrop-blur-sm transition-opacity"
                 onClick={onClose}
             />
 
-            <div className="relative w-full max-w-3xl bg-white border border-line rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-fade-in-up">
+            <div ref={panelRef} role="dialog" aria-modal="true" aria-labelledby={titleId} tabIndex={-1} className="relative w-full max-w-3xl bg-white border border-line rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-fade-in-up">
                 {/* Header */}
-                <div className="p-6 border-b border-line bg-white flex justify-between items-center">
-                    <h2 className="text-2xl font-bold text-ink">{title}</h2>
+                <div className="p-5 sm:p-6 shrink-0 border-b border-line bg-white flex justify-between items-center gap-4">
+                    <h2 id={titleId} className="text-xl sm:text-2xl font-bold text-ink">{title}</h2>
                     <button
+                        ref={closeButtonRef}
+                        type="button"
+                        aria-label="닫기"
                         onClick={onClose}
-                        className="p-2 rounded-full bg-white hover:bg-[#F5F2FC] text-slate-600 hover:text-ink transition-colors border border-line"
+                        className="p-2 min-w-11 min-h-11 shrink-0 rounded-full bg-white hover:bg-[#F5F2FC] text-slate-600 hover:text-ink transition-colors border border-line"
                     >
                         <X size={24} />
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="p-8 overflow-y-auto custom-scrollbar bg-white leading-relaxed">
+                <div className="p-5 sm:p-8 min-h-0 overflow-y-auto custom-scrollbar bg-white leading-relaxed">
                     {type === 'privacy' ? privacyContent : termsContent}
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-line bg-[#FAF9F7] flex justify-end">
+                <div className="p-5 sm:p-6 shrink-0 border-t border-line bg-[#FAF9F7] flex justify-end">
                     <button
+                        type="button"
                         onClick={onClose}
                         className="px-6 py-2 rounded-lg bg-primary hover:bg-primary-glow text-white font-bold transition-all"
                     >
@@ -133,7 +177,8 @@ const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, type }) => {
                     </button>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 };
 

@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 
 const Spotlight: React.FC = () => {
+  const evidenceNote = '※ 수치는 자체 측정·추정치이며 설치 환경과 조건에 따라 달라질 수 있습니다. 세부 근거는 문의 시 안내드립니다.';
   // ---- 임팩트 통계 (발표자료 문제 제기 수치) ----
   const stats = [
     { value: '37초', label: '골든타임', desc: '아리셀 참사 기준, 생사를 가른 시간' },
@@ -31,7 +32,7 @@ const Spotlight: React.FC = () => {
   const sellingPoints = [
     { icon: Coins, title: '1/20 도입 비용', desc: '기존 NVR+AI 서버 방식(시설당 1,000만원+) 대비, 대당 30~50만원 1회성 도입.' },
     { icon: Timer, title: '2초 이내 응답', desc: '서버 왕복 없이 카메라 자체에서 AI 추론. 기존 방식 3~10초 대비 즉각 반응.' },
-    { icon: ShieldCheck, title: '영상 미전송', desc: '영상 원본은 기기 내 암호화 보관, 메타데이터만 전송. 개인정보 이슈 원천 차단.' },
+    { icon: ShieldCheck, title: '영상 미전송', desc: '영상 원본은 기기 내 암호화 보관, 메타데이터만 전송. 개인정보 노출 위험을 줄입니다.' },
   ];
 
   // ---- EdgeCam 핵심 스펙 ----
@@ -53,15 +54,29 @@ const Spotlight: React.FC = () => {
     { label: '통합관제 연동', legacy: '별도 개발', cloud: '벤더 종속', edge: '표준 MQTT + 오픈 API' },
   ];
 
+  const specList = (
+    <dl className="divide-y divide-line">
+      {specs.map(([k, v]) => (
+        <div key={k} className="py-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
+          <dt className="ticker text-slate-500 sm:w-32 shrink-0">{k}</dt>
+          <dd className="text-sm text-slate-700">{v}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+
   // ---- 도입 문의 CTA (Contact 폼 프리필 연동) ----
   const handleInquiry = () => {
     const url = new URL(window.location.href);
     url.searchParams.set('inquiry', 'Golden Bridge · EdgeCam');
+    url.hash = 'contact';
     window.history.pushState({}, '', url);
     window.dispatchEvent(new CustomEvent('inquiry-selected', {
       detail: { solutionName: 'Golden Bridge · EdgeCam' }
     }));
-    document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('contact')?.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth'
+    });
   };
 
   return (
@@ -81,7 +96,7 @@ const Spotlight: React.FC = () => {
         </div>
 
         {/* ===== 임팩트 통계 ===== */}
-        <div className="grid md:grid-cols-3 gap-4 mb-24">
+        <div className="grid md:grid-cols-3 gap-4 mb-4">
           {stats.map((s, idx) => (
             <div key={idx} className={`relative rounded-2xl bg-white border border-line p-8 text-center overflow-hidden reveal delay-${idx + 1}`}>
               <div className="text-4xl md:text-5xl font-black text-ink tabular-nums mb-2">{s.value}</div>
@@ -90,6 +105,7 @@ const Spotlight: React.FC = () => {
             </div>
           ))}
         </div>
+        <p className="text-xs text-slate-500 leading-relaxed mb-24">{evidenceNote}</p>
 
         {/* ===== End-to-End 아키텍처 ===== */}
         <div className="mb-24">
@@ -125,6 +141,7 @@ const Spotlight: React.FC = () => {
             <h3 className="text-2xl md:text-3xl font-bold text-ink mb-2 reveal delay-1">
               서버 없이, 현장에서,<br />2초 안에 판단하는 카메라
             </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">{evidenceNote}</p>
             {sellingPoints.map((p, idx) => (
               <div key={idx} className={`flex gap-5 rounded-2xl bg-white border border-line p-6 hover:border-primary/40 transition-all reveal delay-${idx + 1}`}>
                 <div className="w-12 h-12 shrink-0 bg-primary/10 rounded-xl flex items-center justify-center text-primary border border-line">
@@ -139,8 +156,8 @@ const Spotlight: React.FC = () => {
           </div>
 
           {/* 스펙 카드 */}
-          <div className="relative rounded-2xl bg-[#F5F2FC] border border-line p-8 overflow-hidden reveal delay-2">
-            <div className="flex items-center justify-between mb-6">
+          <div className="relative rounded-2xl bg-[#F5F2FC] border border-line p-5 md:p-8 overflow-hidden reveal delay-2">
+            <div className="hidden md:flex items-center justify-between mb-6">
               <div className="ticker text-slate-600">TECHNICAL SPEC</div>
               <div className="flex items-center gap-2 ticker">
                 <span className="live-dot"></span>
@@ -148,14 +165,11 @@ const Spotlight: React.FC = () => {
               </div>
             </div>
 
-            <dl className="divide-y divide-line">
-              {specs.map(([k, v], idx) => (
-                <div key={idx} className="py-3 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4">
-                  <dt className="ticker text-slate-500 sm:w-32 shrink-0">{k}</dt>
-                  <dd className="text-sm text-slate-700">{v}</dd>
-                </div>
-              ))}
-            </dl>
+            <div className="hidden md:block">{specList}</div>
+            <details className="md:hidden">
+              <summary className="cursor-pointer text-sm font-semibold text-primary py-2">TECHNICAL SPEC · EDGECAM</summary>
+              {specList}
+            </details>
 
             <div className="mt-6 h-0.5 w-full bg-[#E7E4DD] rounded-full overflow-hidden">
               <div className="h-full w-full bg-primary"></div>
@@ -168,7 +182,32 @@ const Spotlight: React.FC = () => {
           <h3 className="text-2xl md:text-3xl font-bold text-ink text-center mb-10 reveal">
             왜 EdgeCam인가
           </h3>
-          <div className="overflow-x-auto reveal delay-1">
+          <details className="md:hidden rounded-2xl bg-white border border-line p-5">
+            <summary className="cursor-pointer font-semibold text-ink py-2">3종 솔루션 비교</summary>
+            <div className="mt-4 space-y-4">
+              {compareRows.map(row => (
+                <div key={row.label} className="rounded-xl border border-line overflow-hidden">
+                  <h4 className="font-bold text-ink p-4 bg-background">{row.label}</h4>
+                  <dl className="text-sm divide-y divide-line">
+                    <div className="p-4"><dt className="text-slate-500 mb-1">기존 NVR + 서버 AI</dt><dd className="text-slate-700">{row.legacy}</dd></div>
+                    <div className="p-4"><dt className="text-slate-500 mb-1">클라우드 AI CCTV</dt><dd className="text-slate-700">{row.cloud}</dd></div>
+                    <div className="p-4 bg-primary/5"><dt className="text-primary font-semibold mb-1">Golden Bridge EdgeCam</dt><dd className="text-ink">{row.edge}</dd></div>
+                  </dl>
+                </div>
+              ))}
+              <div className="rounded-xl border border-line overflow-hidden">
+                <h4 className="font-bold text-ink p-4 bg-background">약자시설 특화 감지</h4>
+                <dl className="text-sm divide-y divide-line">
+                  <div className="p-4"><dt className="text-slate-500 mb-1">기존 NVR + 서버 AI</dt><dd><XIcon size={16} className="text-slate-400" role="img" aria-label="미지원" /></dd></div>
+                  <div className="p-4"><dt className="text-slate-500 mb-1">클라우드 AI CCTV</dt><dd><XIcon size={16} className="text-slate-400" role="img" aria-label="미지원" /></dd></div>
+                  <div className="p-4 bg-primary/5"><dt className="text-primary font-semibold mb-1">Golden Bridge EdgeCam</dt><dd className="text-ink">낙상 · 배회 · 연기</dd></div>
+                </dl>
+              </div>
+            </div>
+          </details>
+          <div className="hidden md:block reveal delay-1">
+            <p className="text-xs text-slate-500 mb-3">표가 화면보다 넓으면 좌우로 스크롤하여 비교하세요.</p>
+            <div className="overflow-x-auto" role="region" aria-label="3종 솔루션 비교표" tabIndex={0}>
             <table className="w-full min-w-[640px] text-sm border-separate border-spacing-0">
               <thead>
                 <tr className="ticker text-slate-500">
@@ -193,15 +232,17 @@ const Spotlight: React.FC = () => {
                 ))}
                 <tr className="text-slate-600">
                   <td className="p-4 text-slate-700 font-medium">약자시설 특화 감지</td>
-                  <td className="p-4"><XIcon size={16} className="text-slate-400" /></td>
-                  <td className="p-4"><XIcon size={16} className="text-slate-400" /></td>
+                    <td className="p-4"><XIcon size={16} className="text-slate-400" role="img" aria-label="미지원" /></td>
+                    <td className="p-4"><XIcon size={16} className="text-slate-400" role="img" aria-label="미지원" /></td>
                   <td className="p-4 bg-primary/5 rounded-b-xl text-ink font-medium">
                     <span className="flex items-center gap-2"><Check size={16} className="text-primary" /> 낙상 · 배회 · 연기</span>
                   </td>
                 </tr>
               </tbody>
             </table>
+            </div>
           </div>
+          <p className="mt-4 text-xs text-slate-500 leading-relaxed">{evidenceNote}</p>
         </div>
 
         {/* ===== CTA ===== */}
