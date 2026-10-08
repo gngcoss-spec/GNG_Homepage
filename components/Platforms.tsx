@@ -23,7 +23,8 @@ const SCENE_META: Record<string, { zone: string; role: string }> = {
   'Logistics DX': { zone: 'WAREHOUSE',  role: '물류·창고 자동화 (SIDONN)' },
 };
 
-const productHash = (id: string) => `#product-${id.toLowerCase().replace(/[\s/]+/g, '-')}`;
+const productSlug = (id: string) => id.toLowerCase().replace(/[\s/]+/g, '-');
+const productHash = (id: string) => `#product-${productSlug(id)}`;
 
 const Platforms: React.FC = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<PlatformItem | null>(null);
@@ -411,15 +412,14 @@ const Platforms: React.FC = () => {
                     <p className="hidden md:block flex-grow text-xs text-slate-500 leading-relaxed line-clamp-2 min-w-0">
                       {activePlatform.description}
                     </p>
-                    <button
-                      type="button"
+                    <a
+                      href={`${import.meta.env.BASE_URL}solutions/${productSlug(activePlatform.id)}`}
                       onFocus={() => setFocusedId(activePlatform.id)}
                       onBlur={() => setFocusedId(null)}
-                      onClick={() => selectById(activePlatform.id)}
                       className="shrink-0 ml-auto inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary-dark transition-colors"
                     >
-                      자세히 보기 <ArrowRight size={13} />
-                    </button>
+                      상세 페이지 <ArrowRight size={13} />
+                    </a>
                   </div>
                 </div>
 

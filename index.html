@@ -63,6 +63,18 @@
     <div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
 
     <div id="root"></div>
+
+    <!-- Netlify Forms 등록용 정적 폼 (빌드 시 Netlify가 감지). 실제 전송은 lib/leads.ts에서 같은 필드명으로 POST -->
+    <form name="resource-request" netlify netlify-honeypot="bot-field" hidden>
+      <input type="text" name="name" />
+      <input type="text" name="company" />
+      <input type="email" name="email" />
+      <input type="text" name="solution" />
+      <input type="text" name="source" />
+      <input type="text" name="consent" />
+      <input type="text" name="bot-field" />
+    </form>
+
     <script type="module" src="/index.tsx"></script>
 
     <!-- Global scroll-progress + reveal observer -->

@@ -1,6 +1,6 @@
 // ============================================================
 // Navbar.tsx — Redesign v2 (인터랙션 강화판)
-// 원본 콘텐츠(메뉴 라벨, 로고 이미지, CTA, 모바일 메뉴) 100% 보존
+// 회사·솔루션 소개 후 도입 절차·맞춤 진단으로 이어지는 탐색 메뉴
 // 추가 요소: 활성 섹션 추적(scroll-spy), 라이브 시스템 인디케이터,
 //          호버 시 underline 애니메이션
 // ============================================================
@@ -14,7 +14,7 @@ const Navbar: React.FC = () => {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    const sectionIds = ['company', 'platform', 'spotlight', 'process', 'contact'];
+    const sectionIds = ['about', 'platform', 'adoption', 'needs', 'contact'];
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
 
@@ -45,12 +45,14 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isMobileMenuOpen]);
 
+  // 상세 페이지(/solutions/*)에서도 동작하도록 홈 경로 기준 절대 링크 사용
+  const home = import.meta.env.BASE_URL;
   const navLinks = [
-    { label: '회사소개',   href: '#company',  id: 'company' },
-    { label: '솔루션',     href: '#platform', id: 'platform'},
-    { label: 'Golden Bridge', href: '#spotlight', id: 'spotlight' },
-    { label: '전환 모델',   href: '#process',  id: 'process' },
-    { label: '문의',       href: '#contact',  id: 'contact' },
+    { label: '회사소개',   href: `${home}#about`,  id: 'about' },
+    { label: '솔루션',     href: `${home}solutions`, id: 'platform'},
+    { label: '도입 절차', href: `${home}#adoption`, id: 'adoption' },
+    { label: '맞춤 진단', href: `${home}#needs`, id: 'needs' },
+    { label: '문의',       href: `${home}#contact`,  id: 'contact' },
   ];
 
   return (
@@ -62,10 +64,10 @@ const Navbar: React.FC = () => {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2 group">
+        <a href={home} className="flex items-center gap-2 group">
           {/* 라이트 배경용 다크 톤 변환 (원본은 다크 배경용 밝은 로고) — 정식 라이트 로고 확보 시 필터 제거 */}
           <img
-            src="./logo.png"
+            src={`${home}logo.png`}
             alt="GNG Logo"
             className="h-16 w-auto object-contain [filter:invert(1)_hue-rotate(180deg)_saturate(1.8)_brightness(0.9)]"
           />
@@ -99,10 +101,10 @@ const Navbar: React.FC = () => {
         {/* Action area: CTA */}
         <div className="hidden lg:flex items-center gap-4">
           <a
-            href="#contact"
+            href={`${home}#contact`}
             className="px-5 py-2.5 bg-primary hover:bg-primary-dark text-white text-sm font-semibold rounded-full transition-all hover:scale-105"
           >
-            문의하기
+            상담 문의
           </a>
         </div>
 
@@ -134,6 +136,9 @@ const Navbar: React.FC = () => {
               {link.label}
             </a>
           ))}
+          <a href={`${home}#contact`} onClick={() => setIsMobileMenuOpen(false)} className="min-h-11 rounded-xl bg-primary px-5 py-3 text-center font-semibold text-white">
+            상담 문의
+          </a>
         </nav>
       )}
     </header>

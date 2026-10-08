@@ -1,6 +1,6 @@
 // ============================================================
 // Hero.tsx — Light Editorial v5
-// 원본 콘텐츠(카피, CTA, 뱃지, 3 features) 보존
+// 원본 브랜드 카피 보존, CTA는 회사 가치(#about)·솔루션 소개(#platform)로 연결
 // 변경: 배경 영상을 BackgroundVideo로 통합(모션 감소·가시성 기반 재생),
 //       h1 복원 후 "DT로 보고…" 문장은 서브헤드로 축소(두 헤드라인 경쟁 해소),
 //       영문 배지 3개는 소형 화면에서 줄바꿈 허용
@@ -69,17 +69,17 @@ const Hero: React.FC = () => {
 
           <div className="flex flex-col sm:flex-row items-center justify-center md:justify-start gap-4 reveal delay-4">
             <a
-              href="#platform"
+              href="#about"
               className="group w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all hover:scale-105"
             >
-              플랫폼 살펴보기
+              GNG의 가치 보기
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </a>
             <a
-              href="#contact"
+              href="#platform"
               className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/80 backdrop-blur-sm border border-line text-ink text-sm font-bold rounded-full hover:border-primary/40 hover:bg-[#F5F2FC] transition-all"
             >
-              문의하기
+              솔루션 살펴보기
               <ChevronRight size={18} />
             </a>
           </div>

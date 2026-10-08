@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react';
 import LegalModal from './LegalModal';
 
 const Footer: React.FC = () => {
+  const home = import.meta.env.BASE_URL;
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
   const [legalType, setLegalType] = useState<'privacy' | 'terms'>('privacy');
 
@@ -77,11 +78,11 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="text-ink font-semibold mb-4">바로가기</h4>
             <ul className="space-y-2 text-slate-600">
-              <li><a href="#company" className="hover:text-primary transition-colors">회사소개</a></li>
-              <li><a href="#platform" className="hover:text-primary transition-colors">솔루션</a></li>
-              <li><a href="#spotlight" className="hover:text-primary transition-colors">Golden Bridge</a></li>
-              <li><a href="#process" className="hover:text-primary transition-colors">전환 모델</a></li>
-              <li><a href="#contact" className="hover:text-primary transition-colors">문의</a></li>
+              <li><a href={`${home}#about`} className="hover:text-primary transition-colors">회사소개</a></li>
+              <li><a href={`${home}solutions`} className="hover:text-primary transition-colors">솔루션</a></li>
+              <li><a href={`${home}solutions/golden-bridge`} className="hover:text-primary transition-colors">Golden Bridge</a></li>
+              <li><a href={`${home}#process`} className="hover:text-primary transition-colors">전환 모델</a></li>
+              <li><a href={`${home}#contact`} className="hover:text-primary transition-colors">문의</a></li>
             </ul>
           </div>
 

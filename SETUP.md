@@ -18,10 +18,10 @@ npm run dev
 | 명령 | 용도 |
 |---|---|
 | `npm run dev` | 개발 서버 (핫 리로드) |
-| `npm run build` | `tsc` 타입 검사 + 프로덕션 빌드 → `build/` |
+| `npm run build` | `tsc` + Vite 빌드 + `scripts/postbuild.ts`(라우트별 정적 HTML·sitemap·404 폴백) → `build/` |
 | `npm run preview` | 빌드 결과 미리보기 (배포 전 최종 확인은 이 방식으로) |
 
-Node.js 18 이상 필요. `npm install` 에러 시 `node --version` 확인 → `npm cache clean --force` → 재시도.
+Node.js **22 이상** 필요(`postbuild`가 `--experimental-strip-types`를 사용). `npm install` 에러 시 `node --version` 확인 → `npm cache clean --force` → 재시도.
 
 ---
 
@@ -32,7 +32,9 @@ Node.js 18 이상 필요. `npm install` 에러 시 `node --version` 확인 → `
 | **gngss.co.kr (공식)** | `netlify.toml` — `npm run build`, publish `build` | Netlify에 연결된 브랜치 push |
 | GitHub Pages (검토용) | `.github/workflows/deploy.yml` | `main` push |
 
-- 두 대상 모두 같은 `build/` 산출물을 쓰며 `vite.config.ts`의 `base: './'` 덕분에 루트·하위 경로 어디서나 동작합니다.
+- `vite.config.ts`의 base는 기본 `/`(Netlify). GitHub Pages는 워크플로에서 `VITE_BASE=/GNG_Homepage/`로 빌드합니다.
+- 라우트: `/`(홈), `/solutions`(허브), `/solutions/<slug>`(상세 8개). SPA 폴백은 Netlify `public/_redirects`, GitHub Pages `404.html`.
+- 리드 수집(자료·데모 요청): Netlify Forms(`resource-request`, index.html 정적 폼) + Supabase. Supabase는 환경변수 `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`가 있을 때만 전송하며 `leads` 테이블(anon insert 허용)이 필요합니다.
 - 대표 URL은 `https://gngss.co.kr/` (`index.html`의 canonical). GitHub Pages 주소는 검색 색인 대상이 아니므로 외부에 공유하지 않습니다.
 - 배포 후 확인: 첫 화면 헤드라인 표시, `/#contact` 직접 진입, `/#product-sson` 모달 오픈, 모바일에서 영상이 화면에 보일 때만 재생.
 
@@ -49,7 +51,12 @@ redesigned/
 ├── postcss.config.js
 ├── App.tsx                ← 섹션 순서
 ├── types.ts
+├── content/solutions/     ← 솔루션 상세 콘텐츠 8종(types.ts 타입 강제, 출처 없는 수치 차단)
+├── lib/                   ← leads.ts(리드 전송), useSeo.ts(라우트별 메타)
+├── scripts/postbuild.ts   ← 라우트 HTML·sitemap 생성
 ├── components/
+│   ├── solutions/         ← SolutionsHub(허브), SolutionPage(상세 템플릿), LeadGate(자료·데모 요청)
+│   ├── FitFinder / AdoptionSteps   ← GNG Fit 맞춤 진단(Codex2 구현, data/fit.ts)
 │   ├── Navbar / Hero / About / WhyGNG / Company / Process / Platforms / Spotlight / CTABand / Contact / Footer
 │   ├── BackgroundVideo.tsx    ← 배경 영상 공용 (모션 감소·가시성 기반 재생)
 │   ├── CampusMap.tsx          ← 제품 적용 영역 개념도

@@ -1,13 +1,18 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Mail, MapPin, ArrowRight, Loader2 } from 'lucide-react';
 import emailjs from '@emailjs/browser';
+import { FIT_INQUIRY_EVENT, FIT_INVALIDATE_EVENT, type FitInquiryDetail } from '../data/fitTypes';
 
 const Contact: React.FC = () => {
   const formRef = useRef<HTMLFormElement>(null);
+  const formRevision = useRef(0);
+  const fitInquiryRef = useRef<FitInquiryDetail | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedSolution, setSelectedSolution] = useState('');
+  const [fitInquiry, setFitInquiry] = useState<FitInquiryDetail | null>(null);
+  const [inquiryNotice, setInquiryNotice] = useState('');
   const [privacyConsent, setPrivacyConsent] = useState(false);
-  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error' | 'consent-required'>('idle');
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'success-preserved' | 'error' | 'consent-required'>('idle');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -18,14 +23,35 @@ const Contact: React.FC = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    formRevision.current += 1;
+    setFormData(prev => ({ ...prev, [name === 'user_message' ? 'message' : name]: value }));
     setSubmitStatus('idle');
   };
+
+  const removeFitInquiry = () => {
+    formRevision.current += 1;
+    fitInquiryRef.current = null;
+    setFitInquiry(null);
+    setSelectedSolution('');
+    setPrivacyConsent(false);
+    setSubmitStatus('idle');
+    setInquiryNotice('현장 진단을 제외했습니다. 작성하신 문의 내용은 유지됩니다.');
+  };
+
+  const outgoingMessage = [
+    formData.message.trim(),
+    fitInquiry && `[GNG Fit 현장 진단]\n진단 기준: ${fitInquiry.ruleVersion}\n추천 구성: ${fitInquiry.solutionNames.join(', ') || '상담 후 확인'}\n\n${fitInquiry.summary}`
+  ].filter(Boolean).join('\n\n');
 
   useEffect(() => {
     // Function to handle inquiry data
     const handleInquiryData = (solutionName: string | null) => {
       if (solutionName) {
+        formRevision.current += 1;
+        setInquiryNotice(fitInquiryRef.current ? '선택한 솔루션이 변경되어 이전 현장 진단을 제외했습니다.' : '');
+        fitInquiryRef.current = null;
+        setFitInquiry(null);
+        setPrivacyConsent(false);
         setSelectedSolution(solutionName);
         setSubmitStatus('idle');
         setFormData(prev => ({
@@ -55,8 +81,37 @@ const Contact: React.FC = () => {
       }
     };
 
+    const handleFitInquiry = (e: Event) => {
+      const detail = (e as CustomEvent<FitInquiryDetail>).detail;
+      if (!detail || typeof detail.summary !== 'string' || !detail.summary.trim() ||
+        !Array.isArray(detail.solutionNames) || !detail.solutionNames.every(name => typeof name === 'string') ||
+        typeof detail.ruleVersion !== 'string') return;
+
+      formRevision.current += 1;
+      setInquiryNotice(fitInquiryRef.current ? '새 현장 진단으로 교체했습니다. 첨부 내용을 확인한 뒤 다시 동의해주세요.' : '현장 진단을 첨부했습니다. 내용을 확인한 뒤 전송해주세요.');
+      fitInquiryRef.current = detail;
+      setFitInquiry(detail);
+      setSelectedSolution(detail.solutionNames.join(', '));
+      setPrivacyConsent(false);
+      setSubmitStatus('idle');
+      setFormData(prev => ({ ...prev, type: '솔루션 도입 문의' }));
+      formRef.current?.querySelector<HTMLInputElement>('#contact-name')?.focus({ preventScroll: true });
+    };
+
+    const handleFitInvalidation = () => {
+      if (!fitInquiryRef.current) return;
+      removeFitInquiry();
+      setInquiryNotice('진단 선택이 변경되어 이전 첨부를 제외했습니다. 새 검토안으로 상담을 준비해주세요.');
+    };
+
     window.addEventListener('inquiry-selected', handleCustomEvent);
-    return () => window.removeEventListener('inquiry-selected', handleCustomEvent);
+    window.addEventListener(FIT_INQUIRY_EVENT, handleFitInquiry);
+    window.addEventListener(FIT_INVALIDATE_EVENT, handleFitInvalidation);
+    return () => {
+      window.removeEventListener('inquiry-selected', handleCustomEvent);
+      window.removeEventListener(FIT_INQUIRY_EVENT, handleFitInquiry);
+      window.removeEventListener(FIT_INVALIDATE_EVENT, handleFitInvalidation);
+    };
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -68,6 +123,17 @@ const Contact: React.FC = () => {
       return;
     }
     if (!formRef.current.reportValidity()) return;
+
+    const submittedRevision = formRevision.current;
+    const submittedForm = document.createElement('form');
+    new FormData(formRef.current).forEach((value, name) => {
+      if (typeof value !== 'string') return;
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      submittedForm.appendChild(input);
+    });
 
     setSubmitStatus('idle');
     setIsSubmitting(true);
@@ -82,14 +148,21 @@ const Contact: React.FC = () => {
       await emailjs.sendForm(
         SERVICE_ID,
         TEMPLATE_ID,
-        formRef.current,
+        submittedForm,
         PUBLIC_KEY
       );
 
-      setSubmitStatus('success');
-      setFormData({ name: '', email: '', company: '', type: '일반 문의', message: '' });
-      setSelectedSolution('');
-      setPrivacyConsent(false);
+      if (formRevision.current === submittedRevision) {
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', company: '', type: '일반 문의', message: '' });
+        setSelectedSolution('');
+        fitInquiryRef.current = null;
+        setFitInquiry(null);
+        setInquiryNotice('');
+        setPrivacyConsent(false);
+      } else {
+        setSubmitStatus('success-preserved');
+      }
     } catch {
       setSubmitStatus('error');
     } finally {
@@ -149,11 +222,25 @@ const Contact: React.FC = () => {
             <h3 className="text-2xl font-bold text-ink mb-6">문의하기</h3>
             <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
               <input type="hidden" name="solution" value={selectedSolution} />
+              <input type="hidden" name="message" value={outgoingMessage} />
               {selectedSolution && (
                 <p className="rounded-xl bg-primary/10 px-4 py-3 text-sm font-medium text-primary">
                   선택한 솔루션: {selectedSolution}
                 </p>
               )}
+              {fitInquiry && (
+                <div id="contact-fit-summary" className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h4 className="font-semibold text-ink">상담에 첨부할 현장 진단</h4>
+                    <button id="contact-remove-fit" type="button" onClick={removeFitInquiry} className="min-h-11 rounded-lg px-3 text-sm font-medium text-primary hover:bg-primary/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary">
+                      진단 내용 제외
+                    </button>
+                  </div>
+                  <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-slate-700">{fitInquiry.summary}</p>
+                  <p className="mt-3 text-xs text-slate-500">전송하기를 누르면 아래 문의 내용과 함께 전달됩니다.</p>
+                </div>
+              )}
+              <p id="contact-inquiry-notice" role="status" aria-live="polite" className="text-sm leading-relaxed text-slate-600">{inquiryNotice}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label htmlFor="contact-name" className="text-xs font-semibold text-slate-600 uppercase tracking-wider">이름</label>
@@ -223,13 +310,13 @@ const Contact: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="contact-message" className="text-xs font-semibold text-slate-600 uppercase tracking-wider">문의 내용</label>
+                <label htmlFor="contact-message" className="text-xs font-semibold text-slate-600 uppercase tracking-wider">{fitInquiry ? '추가 문의 내용 (선택)' : '문의 내용'}</label>
                 <textarea
                   id="contact-message"
-                  name="message"
+                  name="user_message"
                   value={formData.message}
                   onChange={handleChange}
-                  required
+                  required={!fitInquiry}
                   rows={4}
                   className="w-full bg-white border border-line rounded-xl px-4 py-3 text-ink focus:outline-none focus:border-primary transition-all resize-none placeholder:text-slate-400"
                   placeholder="문의하실 내용을 입력해주세요."
@@ -239,6 +326,7 @@ const Contact: React.FC = () => {
               <div className="rounded-xl border border-line bg-background p-4 text-xs leading-relaxed text-slate-600">
                 <p id="contact-privacy-notice">
                   수집 항목: 이름·이메일·회사명(선택)·문의 내용<br />
+                  선택 수집 항목: 현장 진단 답변·추천 구성(상담에 첨부한 경우)<br />
                   목적: 문의 응대<br />
                   보유기간: 처리 목적 달성 시까지<br />
                   외부 전송: EmailJS 이메일 발송 서비스
@@ -250,6 +338,7 @@ const Contact: React.FC = () => {
                     name="privacy_consent"
                     checked={privacyConsent}
                     onChange={(e) => {
+                      formRevision.current += 1;
                       setPrivacyConsent(e.target.checked);
                       setSubmitStatus('idle');
                     }}
@@ -280,6 +369,7 @@ const Contact: React.FC = () => {
               </button>
               <div role="status" aria-live="polite" aria-atomic="true" className="text-sm leading-relaxed text-slate-700">
                 {submitStatus === 'success' && '문의가 성공적으로 전송되었습니다. 담당자가 곧 연락드리겠습니다.'}
+                {submitStatus === 'success-preserved' && '전송을 요청한 문의가 성공적으로 전달되었습니다. 전송 중 변경하신 내용은 현재 폼에 유지됩니다.'}
                 {submitStatus === 'consent-required' && '개인정보 수집·이용 및 외부 전송에 동의해주세요.'}
                 {submitStatus === 'error' && (
                   <p>

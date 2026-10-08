@@ -10,6 +10,8 @@ import Spotlight from './components/Spotlight';
 import CTABand from './components/CTABand';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import FitFinder from './components/FitFinder';
+import AdoptionSteps from './components/AdoptionSteps';
 
 const App: React.FC = () => {
   return (
@@ -24,7 +26,9 @@ const App: React.FC = () => {
         <Process />
         <Platforms />
         <Spotlight />
+        <AdoptionSteps />
         <CTABand />
+        <FitFinder />
         <Contact />
       </main>
 

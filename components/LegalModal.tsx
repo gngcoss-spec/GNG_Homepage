@@ -94,7 +94,7 @@ const LegalModal: React.FC<LegalModalProps> = ({ isOpen, onClose, type }) => {
                 <strong>제5조 (처리하는 개인정보 항목)</strong><br />
                 회사는 다음의 개인정보 항목을 처리하고 있습니다.<br />
                 - 필수항목: 이름, 이메일, 문의 내용<br />
-                - 선택항목: 회사명
+                - 선택항목: 회사명, 현장 진단 답변·추천 구성(상담에 첨부한 경우)
             </p>
             <p>
                 <strong>제6조 (개인정보의 파기)</strong><br />

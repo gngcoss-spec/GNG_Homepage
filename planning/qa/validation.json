@@ -1,0 +1,120 @@
+{
+  "date": "2026-10-01",
+  "artifact": "gng-fit-service-plan.html",
+  "browser": "Microsoft Edge via Playwright",
+  "scope": "Local file rendering, recommendation branches and download. No external inquiry, production or field verification.",
+  "checks": [
+    {
+      "name": "page title",
+      "pass": true
+    },
+    {
+      "name": "internal anchors",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "recommendation facility",
+      "pass": true,
+      "details": "Smart FM"
+    },
+    {
+      "name": "recommendation access",
+      "pass": true,
+      "details": "SSiN"
+    },
+    {
+      "name": "recommendation monitor",
+      "pass": true,
+      "details": "SSoN"
+    },
+    {
+      "name": "recommendation space",
+      "pass": true,
+      "details": "SpaceOps"
+    },
+    {
+      "name": "recommendation safety",
+      "pass": true,
+      "details": "Golden Bridge"
+    },
+    {
+      "name": "safety review boundary",
+      "pass": true
+    },
+    {
+      "name": "recommendation logistics",
+      "pass": true,
+      "details": "Logistics DX"
+    },
+    {
+      "name": "recommendation unknown",
+      "pass": true,
+      "details": "제품 추천 보류"
+    },
+    {
+      "name": "energy priority changes primary product",
+      "pass": true
+    },
+    {
+      "name": "energy price factors",
+      "pass": true
+    },
+    {
+      "name": "conflicting problem and goal defer product selection",
+      "pass": true
+    },
+    {
+      "name": "changed answers invalidate stale results",
+      "pass": true
+    },
+    {
+      "name": "unknown environment shows follow-up",
+      "pass": true
+    },
+    {
+      "name": "unusual site-problem combination",
+      "pass": true
+    },
+    {
+      "name": "reset clears results",
+      "pass": true
+    },
+    {
+      "name": "scale system timeline reflected",
+      "pass": true
+    },
+    {
+      "name": "download contains selected context",
+      "pass": true
+    },
+    {
+      "name": "no unexpected network calls",
+      "pass": true,
+      "details": []
+    },
+    {
+      "name": "no page overflow at 390",
+      "pass": true,
+      "details": {
+        "viewport": 390,
+        "document": 390
+      }
+    },
+    {
+      "name": "no page overflow at 320",
+      "pass": true,
+      "details": {
+        "viewport": 320,
+        "document": 320
+      }
+    },
+    {
+      "name": "no browser script errors",
+      "pass": true,
+      "details": []
+    }
+  ],
+  "errors": [],
+  "externalRequests": []
+}

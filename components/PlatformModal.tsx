@@ -163,6 +163,12 @@ const PlatformModal: React.FC<PlatformModalProps> = ({ platform, isOpen, onClose
                         >
                             링크 복사
                         </button>
+                        <a
+                            href={`${import.meta.env.BASE_URL}solutions/${platform.id.toLowerCase().replace(/[\s/]+/g, '-')}`}
+                            className="flex-1 sm:flex-none px-4 py-3 rounded-xl border border-line text-primary hover:bg-[#F5F2FC] transition-colors font-medium text-center"
+                        >
+                            상세 페이지
+                        </a>
                         <button
                             type="button"
                             onClick={onClose}

@@ -6,7 +6,7 @@
   "description": "GNG Co., Ltd. Homepage — Redesign v2 with Digital Twin × Mission Control interactions",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && node --experimental-strip-types scripts/postbuild.ts",
     "preview": "vite preview",
     "serve": "vite preview --port 5173"
   },
@@ -14,7 +14,8 @@
     "@emailjs/browser": "^4.4.1",
     "lucide-react": "^0.555.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-router-dom": "^7.18.4"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

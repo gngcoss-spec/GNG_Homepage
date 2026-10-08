@@ -1,10 +1,10 @@
 // ============================================================
 // Company.tsx — Phase 2 신규 (사업계획서 기반 회사 신뢰 근거 섹션)
-// 대표 프로필 / 연혁 타임라인 / 특허·정부지원사업·협력 네트워크
+// 기업 연혁 / 특허·정부지원사업·협력 네트워크
 // 모든 수치·이력은 2026년 사업계획서(.archive) 검증 내용 기준
 // ============================================================
 import React from 'react';
-import { User, FileBadge, Landmark, Handshake, MapPin } from 'lucide-react';
+import { FileBadge, Landmark, Handshake, MapPin } from 'lucide-react';
 
 const Company: React.FC = () => {
   const history = [
@@ -45,52 +45,20 @@ const Company: React.FC = () => {
         <div className="mb-20">
           <h2 className="text-sm font-semibold text-primary mb-4 tracking-wide uppercase flex items-center gap-2 reveal">
             <span className="w-8 h-[1px] bg-primary"></span>
-            회사소개
+            기술개발과 성장 기록
           </h2>
           <h3 className="text-3xl md:text-5xl font-bold text-ink mb-6 leading-tight reveal delay-1">
-            현장에서 검증된 경험으로<br />공간 운영의 전환을 만듭니다
+            가능가가 쌓아온<br />기술과 협력의 발자취
           </h3>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 mb-16">
-          {/* CEO 프로필 */}
-          <div className="relative rounded-2xl bg-white border border-line p-8 overflow-hidden reveal">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-14 h-14 bg-[#F5F2FC] rounded-xl flex items-center justify-center text-primary border border-line">
-                <User size={28} />
-              </div>
-              <div>
-                <div className="ticker text-primary/60 mb-1">CEO</div>
-                <h4 className="text-2xl font-bold text-ink">대표이사 박웅철</h4>
-              </div>
-            </div>
-
-            <p className="text-slate-700 font-medium mb-1">
-              안전·보안 및 디지털 전환(AX·DX·SI) 분야 18년 현장 경험
-            </p>
-            <p className="text-xs text-slate-500 mb-4">※ 법인 설립(2024.09) 이전 재직 경력을 포함한 대표 개인 이력입니다.</p>
-            <ul className="space-y-3 text-sm text-slate-600 leading-relaxed">
-              <li className="flex gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0"></span>
-                에스원 — 대기업 B2B 보안 SI 제안·구축 PM/PL, 해외 48개 사업장 물리보안 총괄
-              </li>
-              <li className="flex gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0"></span>
-                솔브레인 — 통합안전관제센터 총괄 운영, 3D 통합관제플랫폼(e-SOP) 운영 총괄
-              </li>
-              <li className="flex gap-3">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary mt-2 shrink-0"></span>
-                NIPA 디지털트윈 혁신 서비스 실증 과제 수행 총괄
-              </li>
-            </ul>
-          </div>
-
+        <div className="mb-16">
           {/* 연혁 타임라인 */}
           <div className="relative rounded-2xl bg-white border border-line p-8 overflow-hidden reveal delay-1">
             <div className="ticker text-primary/60 mb-6">HISTORY · GNG 법인 연혁</div>
-            <ol className="relative border-l border-line space-y-6 ml-2">
+            <ol className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-7 ml-2">
               {history.map((item, idx) => (
-                <li key={idx} className="pl-6 relative">
+                <li key={idx} className="pl-6 relative border-l border-line">
                   <span
                     className={`absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full ${
                       idx === history.length - 1 ? 'bg-primary' : 'bg-line'

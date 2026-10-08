@@ -28,15 +28,17 @@ const CTABand: React.FC = () => {
           <span className="text-primary">안심</span>을 설계할 차례입니다
         </h3>
         <p className="text-slate-600 text-lg mb-10 leading-relaxed reveal delay-2">
-          현재 운영 환경을 알려주시면, 안심에 이르는 DT→DX→AI→AX 전환 여정을 함께 설계해 드립니다.
+          먼저 현장에 맞는 구성을 살펴보세요. 이미 도입할 범위가 정해져 있다면 바로 상담을 요청할 수 있습니다.
         </p>
-        <a
-          href="#contact"
-          className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all hover:scale-105 reveal delay-3"
-        >
-          문의하기
-          <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-        </a>
+        <div className="flex flex-col sm:flex-row justify-center gap-3 reveal delay-3">
+          <a href="#fit" className="group inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-white text-sm font-bold rounded-full hover:bg-primary-dark transition-all">
+            맞춤 솔루션 찾기
+            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+          </a>
+          <a href="#contact" className="inline-flex items-center justify-center px-8 py-4 border border-line bg-white text-ink text-sm font-bold rounded-full hover:border-primary/40 transition-colors">
+            바로 상담하기
+          </a>
+        </div>
       </div>
     </section>
   );

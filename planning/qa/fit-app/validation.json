@@ -1,0 +1,181 @@
+{
+  "date": "2026-10-01",
+  "baseUrl": "http://127.0.0.1:4176",
+  "checks": [
+    {
+      "name": "direct fit entry and heading",
+      "passed": true
+    },
+    {
+      "name": "missing response focuses first field",
+      "passed": true
+    },
+    {
+      "name": "missing response prevents advancement",
+      "passed": true
+    },
+    {
+      "name": "problem card presets diagnosis",
+      "passed": true
+    },
+    {
+      "name": "previous step retains answers",
+      "passed": true
+    },
+    {
+      "name": "forward navigation retains answers",
+      "passed": true
+    },
+    {
+      "name": "facility recommendation includes relevant scope",
+      "passed": true
+    },
+    {
+      "name": "result receives keyboard focus",
+      "passed": true
+    },
+    {
+      "name": "download contains answers and recommendation",
+      "passed": true
+    },
+    {
+      "name": "diagnosis does not send email",
+      "passed": true
+    },
+    {
+      "name": "contact attachment is visible",
+      "passed": true
+    },
+    {
+      "name": "contact preserves existing draft",
+      "passed": true
+    },
+    {
+      "name": "existing email message receives both draft and diagnosis",
+      "passed": true
+    },
+    {
+      "name": "contact preparation is not a submission",
+      "passed": true
+    },
+    {
+      "name": "consent prevents submission",
+      "passed": true
+    },
+    {
+      "name": "mock failure preserves draft and diagnosis",
+      "passed": true
+    },
+    {
+      "name": "mock outgoing message includes both contexts",
+      "passed": true
+    },
+    {
+      "name": "remove attachment preserves draft and resets consent",
+      "passed": true
+    },
+    {
+      "name": "removed diagnosis is absent from outgoing message",
+      "passed": true
+    },
+    {
+      "name": "diagnosis reset invalidates previous attachment and consent",
+      "passed": true
+    },
+    {
+      "name": "new diagnosis replaces old attachment",
+      "passed": true
+    },
+    {
+      "name": "replaced attachment requires fresh consent",
+      "passed": true
+    },
+    {
+      "name": "in-flight edits survive successful previous request",
+      "passed": true
+    },
+    {
+      "name": "submission snapshot excludes later edits",
+      "passed": true
+    },
+    {
+      "name": "mock success clears submitted form and attachment",
+      "passed": true
+    },
+    {
+      "name": "energy recommendation uses SSAx and relevant cost factors",
+      "passed": true
+    },
+    {
+      "name": "edited answer invalidates stale result and actions",
+      "passed": true
+    },
+    {
+      "name": "edited recommendation recomputes",
+      "passed": true
+    },
+    {
+      "name": "conflicting goals do not recommend products",
+      "passed": true
+    },
+    {
+      "name": "safety routes to development and validation discussion",
+      "passed": true
+    },
+    {
+      "name": "unknown answers permit diagnosis without fabricated product",
+      "passed": true
+    },
+    {
+      "name": "legacy product selection removes unrelated diagnosis",
+      "passed": true
+    },
+    {
+      "name": "legacy inquiry URL remains supported",
+      "passed": true
+    },
+    {
+      "name": "fit replaces stale product query without exposing answers",
+      "passed": true
+    },
+    {
+      "name": "legacy product deep link remains functional",
+      "passed": true
+    },
+    {
+      "name": "mobile diagnosis entry 390",
+      "passed": true
+    },
+    {
+      "name": "no page overflow at 390",
+      "passed": true
+    },
+    {
+      "name": "no clipped diagnosis overflow at 390",
+      "passed": true
+    },
+    {
+      "name": "mobile diagnosis entry 320",
+      "passed": true
+    },
+    {
+      "name": "no page overflow at 320",
+      "passed": true
+    },
+    {
+      "name": "no clipped diagnosis overflow at 320",
+      "passed": true
+    },
+    {
+      "name": "no browser application errors",
+      "passed": true
+    },
+    {
+      "name": "email tests were intercepted",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "mockedEmailRequests": 3,
+  "realEmailSent": false
+}
