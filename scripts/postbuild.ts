@@ -33,10 +33,13 @@ function routeHtml(title: string, description: string, path: string, body: strin
   return html;
 }
 
+// 두 형태로 저장: <path>/index.html (trailing slash 직접 진입) + <path>.html
+// (Netlify·GitHub Pages의 pretty URL이 /solutions/ssin 을 301 없이 바로 서빙하도록)
 function write(path: string, html: string) {
   const dir = join(BUILD, path);
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, 'index.html'), html);
+  writeFileSync(join(BUILD, `${path}.html`), html);
 }
 
 // 허브
